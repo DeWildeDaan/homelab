@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-home
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ .Values.ingress.host }}`)
+      kind: Rule
+      services:
+        - name: argocd-server
+          port: 80
+  # No explicit tls: section — Traefik serves the default wildcard cert
+  # configured by apps/traefik-config/ (wildcard-home-daandewilde-be-tls).
+  tls: {}

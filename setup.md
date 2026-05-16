@@ -11,7 +11,11 @@
 
 ## Lessons Learned (What Went Wrong First Time)
 
-The original cluster had a conflict between k3s's built-in network policy controller and kube-router, both managing iptables rules with different packet marks (`0x10000` vs `0x20000`). This caused cross-node TCP traffic to be silently dropped. The fix is to **disable network policy before k3s starts** via config.yaml.
+Two separate silent-drop bugs hit cross-node traffic. Both look identical from a kubectl perspective (pods Running, Services Unknown, DNS timeouts, ArgoCD apps stuck) but the causes are unrelated.
+
+1. **kube-router vs k3s built-in network policy controller.** Both manage iptables rules with different packet marks (`0x10000` vs `0x20000`). Cross-node TCP gets silently dropped. Fix: **`disable-network-policy: true` in `/etc/rancher/k3s/config.yaml` BEFORE k3s starts** (Step 4).
+
+2. **Flannel VXLAN TX checksum offload bug.** The kernel hands checksum computation to the NIC, but VXLAN-encapsulated inner UDP/TCP checksums end up zero/wrong and the receiving node drops them. ICMP doesn't use that path, so **ping works cross-node but DNS / HTTP / anything-TCP-or-UDP fails cross-node**. Diagnose by checking `sudo ethtool -k flannel.1 | grep tx-checksum-ip-generic` — if `on`, you have the bug. Fix: disable the offload on every node and make it persistent via systemd (Step 7).
 
 ---
 
@@ -146,7 +150,60 @@ sudo kubectl get nodes -o wide
 
 ---
 
-## Step 7 — Copy Kubeconfig to Laptop
+## Step 7 — Disable Flannel TX checksum offload (on ALL nodes)
+
+> ⚠️ Skip this and you'll spend hours debugging "ApplicationSet generated 0 apps", DNS timeouts, and ArgoCD apps stuck on `Unknown`. See Lesson #2 above.
+
+`flannel.1` only exists once k3s is running, so this step comes after the cluster is up. Run on every node:
+
+```bash
+# Immediate fix — applies to the running flannel.1 interface
+sudo ethtool -K flannel.1 tx-checksum-ip-generic off
+
+# Verify it stuck (expect: tx-checksum-ip-generic: off)
+sudo ethtool -k flannel.1 | grep tx-checksum-ip-generic
+```
+
+Make it survive reboots and k3s restarts with a systemd unit:
+
+```bash
+sudo tee /etc/systemd/system/flannel-tx-csum-off.service > /dev/null <<'EOF'
+[Unit]
+Description=Disable TX checksum offload on flannel.1 (k3s VXLAN bug workaround)
+After=k3s.service
+Wants=k3s.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Wait up to 60s for flannel.1 to appear, then disable the offload.
+ExecStart=/bin/sh -c 'for i in $(seq 1 30); do ip link show flannel.1 >/dev/null 2>&1 && /usr/sbin/ethtool -K flannel.1 tx-checksum-ip-generic off && exit 0; sleep 2; done; exit 1'
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now flannel-tx-csum-off.service
+sudo systemctl status flannel-tx-csum-off.service --no-pager
+```
+
+Smoke test from your laptop — DNS via the Service IP from a pod pinned to a node that does NOT host CoreDNS:
+
+```bash
+# Find a node CoreDNS is NOT on
+COREDNS_NODE=$(kubectl -n kube-system get pod -l k8s-app=kube-dns -o jsonpath='{.items[0].spec.nodeName}')
+OTHER_NODE=$(kubectl get node -o name | grep -v "$COREDNS_NODE" | head -1 | cut -d/ -f2)
+
+kubectl run dns-check --rm -i --restart=Never --image=tutum/dnsutils \
+  --overrides='{"spec":{"nodeName":"'"$OTHER_NODE"'"}}' \
+  -- dig +short @10.43.0.10 kubernetes.default.svc.cluster.local
+# Expect: 10.43.0.1
+```
+
+---
+
+## Step 8 — Copy Kubeconfig to Laptop
 
 ```bash
 # Fix permissions on c1 first
@@ -164,7 +221,7 @@ kubectl get nodes
 
 ---
 
-## Step 8 — Install ArgoCD
+## Step 9 — Install ArgoCD
 
 ```bash
 kubectl create namespace argocd
@@ -181,7 +238,7 @@ kubectl get pods -n argocd
 
 ---
 
-## Step 9 — Get ArgoCD Admin Password
+## Step 10 — Get ArgoCD Admin Password
 
 ```bash
 kubectl get secret argocd-initial-admin-secret -n argocd \
@@ -190,7 +247,7 @@ kubectl get secret argocd-initial-admin-secret -n argocd \
 
 ---
 
-## Step 10 — Expose ArgoCD via Traefik
+## Step 11 — Expose ArgoCD via Traefik
 
 Patch ArgoCD to run in insecure mode (let Traefik handle TLS):
 ```bash
@@ -223,11 +280,11 @@ EOF
 
 Access ArgoCD at: `http://argocd.192.168.4.21.nip.io`
 - Username: `admin`
-- Password: from Step 9
+- Password: from Step 10
 
 ---
 
-## Step 11 — Create ApplicationSet
+## Step 12 — Create ApplicationSet
 
 ```bash
 kubectl apply -f - <<EOF
@@ -281,3 +338,18 @@ Your repo must have an `apps/` folder at the root with subdirectories for each a
 
 ### Cross-node TCP timeouts (the original problem)
 Caused by kube-router and k3s built-in network policy controller conflicting. Prevented by setting `disable-network-policy: true` in `/etc/rancher/k3s/config.yaml` before starting k3s.
+
+### Cross-node UDP/TCP timeouts but ICMP works (the second problem)
+
+Symptoms: `ping <pod-ip>` works between nodes, but `dig @10.43.0.10 ...` from a pod times out unless the pod is on the same node as CoreDNS. ArgoCD apps stuck `Unknown`, application-controller logs show `lookup argocd-repo-server on 10.43.0.10:53: i/o timeout`.
+
+Diagnose:
+```bash
+sudo ethtool -k flannel.1 | grep tx-checksum-ip-generic
+# tx-checksum-ip-generic: on  ← that's the bug
+```
+
+Fix: see Step 7. One-liner per node + persistent systemd unit.
+
+### Stuck k3s `config.yaml` after editing
+`disable-network-policy: true` and other settings only apply at install time. If you add the flag to a running cluster, kube-router stays deployed — you have to manually delete its DaemonSet or reinstall k3s. Same caveat for `disable: [servicelb]` — adding it later doesn't remove klipper-lb pods that are already running.
