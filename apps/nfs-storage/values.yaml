@@ -1,0 +1,14 @@
+nfs-subdir-external-provisioner:
+  nfs:
+    server: 192.168.4.10
+    path: /volume1/k8s-storage
+    mountOptions:
+      - nfsvers=4.1
+      - hard
+
+  storageClass:
+    name: nfs-nas
+    defaultClass: true
+    accessModes: ReadWriteMany
+    reclaimPolicy: Retain
+    pathPattern: "${.PVC.namespace}-${.PVC.name}"

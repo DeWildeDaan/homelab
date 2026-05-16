@@ -1,0 +1,16 @@
+cert-manager:
+  crds:
+    # Chart default is false; we want cert-manager to manage its own CRDs.
+    enabled: true
+
+# Project-level config consumed by templates in this chart, not by upstream.
+issuer:
+  email: daan@daandewilde.be
+  acmeServer: https://acme-v02.api.letsencrypt.org/directory
+  cloudflareTokenSecret: cloudflare-api-token
+
+wildcard:
+  name: wildcard-home-daandewilde-be
+  secretName: wildcard-home-daandewilde-be-tls
+  namespace: kube-system
+  dnsZone: home.daandewilde.be

@@ -1,0 +1,4 @@
+# Upstream chart defaults are fine — the speaker DaemonSet already tolerates
+# control-plane taints out of the box. The IPAddressPool and L2Advertisement
+# are in templates/, not here.
+metallb: {}

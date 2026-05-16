@@ -1,0 +1,3 @@
+traefik:
+  loadBalancerIP: 192.168.4.30
+  wildcardCertSecret: wildcard-home-daandewilde-be-tls

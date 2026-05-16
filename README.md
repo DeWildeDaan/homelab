@@ -13,7 +13,7 @@
 2. [Goals & Principles](#goals--principles)
 3. [Physical Infrastructure](#physical-infrastructure)
 4. [Virtualization — Proxmox](#virtualization--proxmox)
-5. [Kubernetes — Talos OS](#kubernetes--talos-os)
+5. [Kubernetes — k3s](#kubernetes--k3s)
 6. [Infrastructure as Code — OpenTofu](#infrastructure-as-code--opentofu)
 7. [GitOps — ArgoCD](#gitops--argocd)
 8. [Secrets Management](#secrets-management)
@@ -28,7 +28,7 @@
 
 ## Overview
 
-This document describes the architecture of a personal homelab built on three mini PCs running Proxmox, hosting a Talos-based Kubernetes cluster. The design prioritises Infrastructure as Code (IaC), GitOps, simplicity, and security — in particular the safe handling of secrets in a public GitHub repository.
+This document describes the architecture of a personal homelab built on three mini PCs running Proxmox, hosting a vanilla Kubernetes cluster (k3s). The design prioritises Infrastructure as Code (IaC), GitOps, simplicity, and security — in particular the safe handling of secrets in a public GitHub repository.
 
 ---
 
@@ -51,11 +51,11 @@ Three identical mini PCs, each assigned a static IP on the management VLAN.
 
 | Node      | Hostname      | Role                                 |
 | --------- | ------------- | ------------------------------------ |
-| Mini PC 1 | `talos-cp-01` | Kubernetes control plane + workloads |
-| Mini PC 2 | `talos-cp-02` | Kubernetes control plane + workloads |
-| Mini PC 3 | `talos-cp-03` | Kubernetes control plane + workloads |
+| Mini PC 1 | `homelab-01`  | Kubernetes control plane + workloads |
+| Mini PC 2 | `homelab-02`  | Kubernetes control plane + workloads |
+| Mini PC 3 | `homelab-03`  | Kubernetes control plane + workloads |
 
-> **Architect's note — single-role nodes:** Running control plane and workloads on the same nodes is a valid and common homelab pattern. The trade-off is that a resource-heavy workload can starve the control plane. Mitigate this with Kubernetes resource requests/limits and, if needed, taints/tolerations to reserve headroom for system-critical pods.
+> **Note — single-role nodes:** Running control plane and workloads on the same nodes is a valid and common homelab pattern. The trade-off is that a resource-heavy workload can starve the control plane. Mitigate this with Kubernetes resource requests/limits and, if needed, taints/tolerations to reserve headroom for system-critical pods.
 
 > **Future:** Dedicated worker nodes can be added as additional Proxmox VMs without changing the control plane topology.
 
@@ -73,23 +73,39 @@ Proxmox VE is installed manually on each mini PC. This is an explicit exception 
 
 **What is automated (via OpenTofu):**
 
-- Talos OS VM creation and configuration on top of Proxmox
+- Debian 12 VM creation on top of Proxmox (one VM per Proxmox host)
+- cloud-init user-data that installs and clusters k3s on first boot
+- Post-cluster bootstrap of Calico, MetalLB, sealed-secrets, and ArgoCD
 
 ---
 
-## Kubernetes — Talos OS
+## Kubernetes — k3s
 
-Talos Linux is the chosen OS for all Kubernetes nodes. It is immutable, API-driven, and has no SSH — all management is done via `talosctl` and declarative machine configs.
+k3s is the chosen Kubernetes distribution. It's a CNCF-conformant, single-binary distribution from Rancher — vanilla Kubernetes, just packaged in a way that makes the install/upgrade story trivial. The bundled batteries (Traefik, ServiceLB, Flannel, in-cluster network policy) are all disabled so the stack matches the rest of this design (ingress-nginx, MetalLB, Calico).
 
 ### Cluster Topology
 
-- 3 control plane nodes (etcd quorum requires odd number — 3 is the minimum for HA)
-- `allowSchedulingOnControlPlanes: true` — workloads run on control plane nodes
+- 3 server nodes with embedded etcd (etcd quorum requires odd number — 3 is the minimum for HA)
+- All nodes are servers (no taints) — workloads run on every node
 - Single cluster, multiple namespaces for workload isolation
+- A floating VIP managed by **kube-vip** (static pod, ARP/L2 mode) fronts the API server on port 6443. The kubeconfig points at the VIP, not any individual node.
 
-### Talos Machine Configs
+### Bootstrap Flow
 
-Generated via `talosctl gen config` and stored in the repository. Secrets (e.g. the cluster CA, bootstrap token) are handled via the secrets management approach described below.
+cloud-init does all the work on first boot of each VM:
+
+1. System prep (swap off, `br_netfilter`, sysctls)
+2. Drop the kube-vip static pod manifest into `/var/lib/rancher/k3s/server/manifests/` (node 1 only — k3s applies it on first start)
+3. Write `/etc/rancher/k3s/config.yaml` with `disable: [traefik, servicelb]`, `flannel-backend: none`, `disable-network-policy: true`, and the right TLS SANs
+4. Run the upstream k3s installer
+   - **Node 1:** `cluster-init: true` — creates the etcd cluster
+   - **Nodes 2 & 3:** wait for `https://<VIP>:6443/healthz` to return OK, then join via `--server https://<VIP>:6443`
+
+The shared k3s join token is generated by OpenTofu (`random_password`) and embedded into each VM's user-data; it lives only in the encrypted state file.
+
+### Day-2 access
+
+Unlike Talos, the nodes are normal Debian 12 boxes with SSH. `kubectl` is available on each node as `k3s kubectl`. Upgrades follow the standard k3s procedure (re-run the installer with a new `INSTALL_K3S_VERSION`).
 
 ---
 
@@ -101,8 +117,9 @@ OpenTofu (OSS Terraform fork) manages all VM-level infrastructure.
 
 | Resource                                         | Managed by OpenTofu       |
 | ------------------------------------------------ | ------------------------- |
-| Proxmox VMs (Talos nodes)                        | Yes                       |
-| Talos machine configuration apply                | Yes                       |
+| Proxmox VMs (Debian cloud images)                | Yes                       |
+| cloud-init user-data + k3s install               | Yes                       |
+| Calico, MetalLB, sealed-secrets install          | Yes                       |
 | ArgoCD bootstrap (initial install + App of Apps) | Yes                       |
 | All subsequent workloads                         | No — handed off to ArgoCD |
 
@@ -115,18 +132,18 @@ OpenTofu state is encrypted using OpenTofu's native state encryption (AES-GCM) a
 - The encryption passphrase is stored in a local password manager and passed as an environment variable — never committed
 - Git acts as the state backend and provides full history of state changes
 
-> **Architect's note:** This is an elegant approach for a public solo homelab repo — you get backup, versioning, and portability for free via Git, with no remote backend to maintain. The one thing to be disciplined about: always `tofu apply` from a clean pull of the repo so you're never working against stale state.
+> **Note:** You get backup, versioning, and portability for free via Git, with no remote backend to maintain. The one thing to be disciplined about: always `tofu apply` from a clean pull of the repo so you're never working against stale state.
 
 ### Secrets & Variables
 
-Sensitive inputs (Proxmox API token, Talos secrets, Cloudflare API token) are passed as variables and never committed.
+Sensitive inputs (Proxmox API token, k3s join token, Cloudflare API token) are passed as variables and never committed. The k3s join token is generated by `random_password` inside `tofu/proxmox` and only ever leaves the encrypted state via per-node cloud-init user-data.
 
 Recommended workflow:
 
 ```
 # .env file (gitignored)
-export TF_VAR_proxmox_api_token="..."
-export TF_VAR_cloudflare_api_token="..."
+export TF_VAR_.....="..."
+export TF_VAR_.....="..."
 
 source .env && tofu apply
 ```
@@ -145,15 +162,28 @@ ArgoCD is the GitOps engine. It is bootstrapped by OpenTofu and takes over from 
 
 ### Bootstrap Flow
 
+A single OpenTofu root at `tofu/` orchestrates two child modules in two stages:
+
 ```
-OpenTofu
-  └── Creates Proxmox VMs
-  └── Applies Talos machine configs
-  └── Bootstraps Kubernetes cluster
-  └── Installs ArgoCD (via Helm or manifests)
-  └── Applies root App of Apps manifest
-        └── ArgoCD takes over from here
+Stage 1:  tofu apply -target=module.proxmox -target=terraform_data.kubeconfig
+  module.proxmox
+    └── Creates Proxmox VMs from a Debian cloud image
+    └── Renders & uploads per-node cloud-init user-data (snippets)
+    └── cloud-init installs k3s; kube-vip brings up the API VIP
+  terraform_data.kubeconfig
+    └── Waits for SSH + 3 Ready nodes
+    └── scps the kubeconfig from node 1, rewrites server URL to the VIP
+    └── Writes it to tofu/.generated/<cluster_name>.kubeconfig
+
+Stage 2:  tofu apply
+  module.bootstrap
+    └── Installs Calico (CNI), MetalLB, sealed-secrets
+    └── Installs ArgoCD via Helm
+    └── Applies the root App of Apps manifest
+          └── ArgoCD takes over from here
 ```
+
+The two-stage `-target` apply is required because the Helm/Kubernetes providers in stage 2 need a working kubeconfig at plan time, and the kubeconfig is only produced after stage 1 has run. Subsequent applies are a single `tofu apply`.
 
 ### App of Apps Pattern
 
@@ -183,9 +213,9 @@ gitops/
 
 ## Secrets Management
 
-### Recommendation: Sealed Secrets (Bitnami)
+### Sealed Secrets (Bitnami)
 
-Sealed Secrets is the recommended approach. It fits the GitOps model cleanly: secrets are encrypted client-side using the cluster's public key and committed as `SealedSecret` custom resources. The in-cluster controller decrypts them into standard Kubernetes `Secret` objects.
+I chose sealed secrets because it fits the GitOps model cleanly: secrets are encrypted client-side using the cluster's public key and committed as `SealedSecret` custom resources. The in-cluster controller decrypts them into standard Kubernetes `Secret` objects.
 
 **Why Sealed Secrets over SOPS:**
 
@@ -215,7 +245,7 @@ kubectl get secret -n kube-system \
 # Encrypt and store this file offline — do NOT commit it
 ```
 
-> **Architect's note:** If you later want multi-cluster or more complex secret workflows, SOPS + age is worth revisiting. For a single-cluster homelab, Sealed Secrets is simpler.
+> **Note:** If you later want multi-cluster or more complex secret workflows, SOPS + age or soemthing like a self hosted Hashicorp Vault is worth revisiting. For now, Sealed Secrets is simpler.
 
 ---
 
@@ -234,7 +264,7 @@ The `nfs-subdir-external-provisioner` Helm chart creates a Kubernetes StorageCla
 
 **Sealed Secret** is used to store any NFS credentials if auth is enabled.
 
-> **Architect's note — no Talos disk storage:** Talos nodes use ephemeral local storage only (no Rook/Ceph, no Longhorn). This keeps the cluster simple and stateless. All persistent data lives on the NAS. The trade-off is NAS availability = storage availability. Acceptable for a homelab; mitigate by ensuring the NAS is on a UPS.
+> **Architect's note — no in-cluster distributed storage:** k3s nodes use the local VM disk for the OS and ephemeral pod data only (no Rook/Ceph, no Longhorn). This keeps the cluster simple and stateless. All persistent data lives on the NAS. The trade-off is NAS availability = storage availability. Acceptable for a homelab; mitigate by ensuring the NAS is on a UPS.
 
 ---
 
@@ -255,7 +285,7 @@ Access control between VLANs is enforced at the Ubiquiti gateway (firewall rules
 
 Multiple `ingress-nginx` IngressClass instances (or a single instance with multiple LoadBalancer IPs) are used to expose applications on different VLANs.
 
-**Recommended approach — MetalLB + multiple IngressClasses:**
+**MetalLB + multiple IngressClasses:**
 
 ```
 MetalLB (Layer 2 mode)
@@ -276,15 +306,15 @@ metadata:
 spec: ...
 ```
 
-> **Architect's note:** MetalLB in L2 mode has a single-node failover limitation (ARP is node-local). For a homelab this is acceptable. BGP mode (more complex, requires router support) provides true HA — Ubiquiti equipment does support BGP if you want to pursue this later.
+> **Note:** MetalLB in L2 mode has a single-node failover limitation (ARP is node-local). For a homelab this is acceptable. BGP mode (more complex, requires router support) provides true HA — Ubiquiti equipment does support BGP if you want to pursue this later.
 
 ### Internal Network Policy — Namespace Isolation
 
-Cilium is recommended as the CNI for Talos. It provides:
+Calico is the CNI (k3s' bundled Flannel + network-policy controller are disabled). Calico provides:
 
 - Native NetworkPolicy support
 - Cluster-wide default-deny policy per namespace
-- Rich L7 policy if needed later
+- Path to BGP peering with the Ubiquiti gateway later if MetalLB L2 becomes a bottleneck
 
 **Default posture:** All namespaces get a default-deny ingress NetworkPolicy. Applications explicitly allow only the traffic they need.
 
@@ -339,50 +369,63 @@ Cloudflare DNS holds the public zone. Internal records are **not** published to 
 homelab/                          # Public GitHub repository
 ├── README.md
 ├── .env.example                  # Documents required env vars (no values)
-├── .gitignore                    # Ignores .env, *.tfstate, *.tfstate.backup
+├── .gitignore                    # Ignores .env, *.tfvars, etc.
 │
-├── tofu/                         # OpenTofu (IaC)
-│   ├── proxmox/                  # VM definitions
-│   │   ├── main.tf
+├── tofu/                         # OpenTofu root — single entry point for all IaC
+│   ├── versions.tf               # provider pins + state encryption block
+│   ├── providers.tf              # proxmox, kubernetes, helm, kubectl
+│   ├── variables.tf              # all top-level vars (forwarded to children)
+│   ├── main.tf                   # module "proxmox" + module "bootstrap"
+│   ├── kubeconfig.tf             # terraform_data: SSH-fetch kubeconfig from node 1
+│   ├── outputs.tf
+│   ├── proxmox/                  # child module — VMs + cloud-init that installs k3s
+│   │   ├── versions.tf
 │   │   ├── variables.tf
-│   │   └── talos-nodes.tf
-│   ├── talos/                    # Talos machine config generation & apply
-│   │   ├── main.tf
-│   │   └── machine-configs/
-│   └── bootstrap/                # ArgoCD install + root App of Apps
-│       └── main.tf
+│   │   ├── locals.tf
+│   │   ├── images.tf
+│   │   ├── cloud-init.tf
+│   │   ├── vms.tf
+│   │   ├── outputs.tf
+│   │   └── templates/
+│   │       ├── user-data-server-init.yaml.tftpl
+│   │       ├── user-data-server-join.yaml.tftpl
+│   │       └── kube-vip.yaml.tftpl
+│   └── bootstrap/                # child module — Calico + MetalLB + sealed-secrets + ArgoCD
+│       ├── versions.tf
+│       ├── variables.tf
+│       ├── calico.tf
+│       ├── metallb.tf
+│       ├── sealed-secrets.tf
+│       ├── argocd.tf
+│       ├── root-app.tf
+│       └── outputs.tf
 │
-├── gitops/                       # ArgoCD managed
-│   ├── apps/                     # App of Apps definitions
-│   │   ├── root-app.yaml
-│   │   ├── sealed-secrets.yaml
-│   │   ├── cert-manager.yaml
-│   │   ├── ingress-nginx.yaml
-│   │   ├── metallb.yaml
-│   │   ├── nfs-provisioner.yaml
-│   │   └── monitoring.yaml
-│   └── manifests/                # Per-app manifests & Helm values
-│       ├── cert-manager/
-│       ├── ingress-nginx/
-│       ├── metallb/
-│       └── <app>/
-│           ├── deployment.yaml
-│           ├── ingress.yaml
-│           └── sealed-secret.yaml   # Safe to commit
-│
-└── docs/
-    └── architecture.md           # This document
+└── gitops/                       # ArgoCD managed
+    ├── apps/                     # App of Apps definitions
+    │   ├── root-app.yaml
+    │   ├── ingress-nginx.yaml
+    │   ├── cert-manager.yaml
+    │   ├── nfs-provisioner.yaml
+    │   └── monitoring.yaml
+    └── manifests/                # Per-app Helm values & extra manifests
+        ├── ingress-nginx/
+        ├── cert-manager/
+        │   ├── values.yaml
+        │   ├── extras/
+        │   │   └── clusterissuer-letsencrypt.yaml
+        │   └── cloudflare-api-token-sealed-secret.yaml.example
+        └── nfs-provisioner/
 ```
 
 ---
 
 ## Architectural Decisions (ADRs)
 
-### ADR-001: Talos OS over Ubuntu/Debian for Kubernetes nodes
+### ADR-001: k3s on Debian 12 for Kubernetes nodes
 
-**Decision:** Use Talos Linux for all Kubernetes nodes.  
-**Rationale:** Immutable, minimal attack surface, API-driven (no SSH), purpose-built for Kubernetes. Aligns with IaC goals.  
-**Trade-off:** Steeper initial learning curve; no shell access for ad-hoc debugging.
+**Decision:** Use k3s on stock Debian 12 VMs for all Kubernetes nodes. Talos was the original choice but was rejected.  
+**Rationale:** Vanilla, well-understood Kubernetes; single-binary install/upgrade; SSH access for ad-hoc debugging; cloud-init is a much simpler bootstrap surface than `talosctl` for a homelab. The bundled k3s extras (Traefik, ServiceLB, Flannel) are explicitly disabled so the rest of the stack matches the design (ingress-nginx, MetalLB, Calico).  
+**Trade-off:** Mutable OS — manual patching is now part of the operations story. Larger attack surface than Talos. No declarative machine configs; node configuration drift is possible if someone SSHes in and changes things outside cloud-init.
 
 ### ADR-002: Control plane nodes also run workloads
 
@@ -408,11 +451,11 @@ homelab/                          # Public GitHub repository
 **Rationale:** Simplicity. Distributed storage adds significant operational complexity.  
 **Trade-off:** NAS is a single point of failure for persistent storage.
 
-### ADR-006: Cilium as CNI
+### ADR-006: Calico as CNI
 
-**Decision:** Use Cilium as the Kubernetes CNI.  
-**Rationale:** Talos-native support, eBPF-based performance, strong NetworkPolicy support, future L7 policy capability.  
-**Trade-off:** More complex than flannel/calico for basic use cases.
+**Decision:** Use Calico (via the tigera-operator Helm chart) as the Kubernetes CNI. k3s' bundled Flannel and the in-cluster network-policy controller are disabled at install time.  
+**Rationale:** Standard, well-understood CNI with mature NetworkPolicy support. VXLAN by default — no router configuration required. Has a clear path to BGP peering with the Ubiquiti gateway later if MetalLB L2 mode becomes a bottleneck.  
+**Trade-off:** No L7 policy out of the box (would need Calico Enterprise or switching to Cilium later). Slightly heavier than Flannel but the policy support is non-negotiable.
 
 ### ADR-007: MetalLB for LoadBalancer services
 
@@ -425,3 +468,9 @@ homelab/                          # Public GitHub repository
 **Decision:** cert-manager with Cloudflare DNS-01.  
 **Rationale:** Allows Let's Encrypt certificates for internal-only services without exposing HTTP to the internet.  
 **Trade-off:** Requires Cloudflare API token in cluster (mitigated by Sealed Secrets).
+
+### ADR-009: kube-vip for API server HA
+
+**Decision:** Run kube-vip as a static pod on each control-plane node (ARP/L2 mode) to provide a single floating VIP for the k3s API server.  
+**Rationale:** With 3 server nodes and embedded etcd, the kubeconfig needs a stable address that survives losing any one node. kube-vip is a single tiny static pod, requires no external load balancer or DNS round-robin, and is the documented HA pattern for k3s without a hardware LB.  
+**Trade-off:** ARP/L2 means the VIP is owned by one node at a time — failover is fast but not instant, and the VIP must live in the same L2 segment as the nodes. BGP mode would be true active/active but adds router-side configuration not worth it at this scale.

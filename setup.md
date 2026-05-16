@@ -1,0 +1,283 @@
+# K3s + ArgoCD Homelab Setup Guide
+
+## Context
+3-node k3s cluster on Proxmox with Ubuntu 26.04 LTS VMs, running ArgoCD with an ApplicationSet pointing to a GitHub repo.
+
+- **k3s-c1**: `192.168.4.21` (control-plane + etcd)
+- **k3s-c2**: `192.168.4.22` (control-plane + etcd)
+- **k3s-c3**: `192.168.4.23` (control-plane + etcd)
+
+---
+
+## Lessons Learned (What Went Wrong First Time)
+
+The original cluster had a conflict between k3s's built-in network policy controller and kube-router, both managing iptables rules with different packet marks (`0x10000` vs `0x20000`). This caused cross-node TCP traffic to be silently dropped. The fix is to **disable network policy before k3s starts** via config.yaml.
+
+---
+
+## Step 1 — Proxmox VM Setup
+
+Create 3 VMs with:
+- **CPU**: 4 cores
+- **RAM**: 4096MB minimum (8192MB recommended)
+- **Disk**: 32GB+
+- **Network**: `virtio, bridge=vmbr0, firewall=0` ← disable Proxmox firewall on NIC
+
+---
+
+## Step 2 — Static IP (on each node)
+
+```bash
+# Find your interface name
+ip link show
+
+# Edit netplan config
+sudo nano /etc/netplan/50-cloud-init.yaml
+```
+
+**k3s-c1:**
+```yaml
+network:
+  version: 2
+  ethernets:
+    ens18:
+      dhcp4: no
+      addresses:
+        - 192.168.4.21/24
+      routes:
+        - to: default
+          via: 192.168.4.1
+      nameservers:
+        addresses:
+          - 1.1.1.1
+          - 8.8.8.8
+```
+
+**k3s-c2:** same but `192.168.4.22/24`
+**k3s-c3:** same but `192.168.4.23/24`
+
+```bash
+sudo netplan apply
+```
+
+---
+
+## Step 3 — Prerequisites (on ALL nodes)
+
+```bash
+# Disable swap
+sudo swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab
+
+# Enable required kernel modules
+sudo modprobe br_netfilter
+echo "br_netfilter" | sudo tee /etc/modules-load.d/br_netfilter.conf
+
+# Required sysctl settings
+cat <<EOF | sudo tee /etc/sysctl.d/k3s.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward = 1
+EOF
+sudo sysctl --system
+```
+
+---
+
+## Step 4 — K3s Config (on ALL nodes, BEFORE installing k3s)
+
+> ⚠️ This is critical — must be done before k3s starts to prevent the kube-router/network-policy conflict.
+
+```bash
+sudo mkdir -p /etc/rancher/k3s
+cat <<EOF | sudo tee /etc/rancher/k3s/config.yaml
+disable-network-policy: true
+EOF
+```
+
+---
+
+## Step 5 — Install K3s on c1 (bootstrap)
+
+```bash
+curl -sfL https://get.k3s.io | sh -s - server \
+  --cluster-init \
+  --node-ip=192.168.4.21 \
+  --advertise-address=192.168.4.21 \
+  --tls-san=192.168.4.21
+```
+
+Wait for node to be ready:
+```bash
+sudo kubectl get nodes
+```
+
+Get the join token:
+```bash
+sudo cat /var/lib/rancher/k3s/server/token
+```
+
+---
+
+## Step 6 — Join c2 and c3
+
+**On k3s-c2:**
+```bash
+curl -sfL https://get.k3s.io | sh -s - server \
+  --server https://192.168.4.21:6443 \
+  --token <TOKEN_FROM_C1> \
+  --node-ip=192.168.4.22 \
+  --advertise-address=192.168.4.22
+```
+
+**On k3s-c3:**
+```bash
+curl -sfL https://get.k3s.io | sh -s - server \
+  --server https://192.168.4.21:6443 \
+  --token <TOKEN_FROM_C1> \
+  --node-ip=192.168.4.23 \
+  --advertise-address=192.168.4.23
+```
+
+Verify all nodes joined:
+```bash
+sudo kubectl get nodes -o wide
+```
+
+---
+
+## Step 7 — Copy Kubeconfig to Laptop
+
+```bash
+# Fix permissions on c1 first
+ssh 192.168.4.21 "sudo chmod 644 /etc/rancher/k3s/k3s.yaml"
+
+# Copy to laptop
+scp k3s-c1@192.168.4.21:/etc/rancher/k3s/k3s.yaml ~/.kube/config
+
+# Fix server IP
+sed -i 's/127.0.0.1/192.168.4.21/g' ~/.kube/config
+
+# Test
+kubectl get nodes
+```
+
+---
+
+## Step 8 — Install ArgoCD
+
+```bash
+kubectl create namespace argocd
+
+# Use server-side apply to avoid the 262144 byte annotation limit
+kubectl apply -n argocd \
+  --server-side \
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# Wait for all pods to be ready
+kubectl wait --for=condition=available --timeout=120s deployment --all -n argocd
+kubectl get pods -n argocd
+```
+
+---
+
+## Step 9 — Get ArgoCD Admin Password
+
+```bash
+kubectl get secret argocd-initial-admin-secret -n argocd \
+  -o jsonpath="{.data.password}" | base64 -d && echo
+```
+
+---
+
+## Step 10 — Expose ArgoCD via Traefik
+
+Patch ArgoCD to run in insecure mode (let Traefik handle TLS):
+```bash
+kubectl patch configmap argocd-cmd-params-cm -n argocd \
+  --type merge \
+  -p '{"data":{"server.insecure":"true"}}'
+
+kubectl rollout restart deploy/argocd-server -n argocd
+```
+
+Create the IngressRoute (using nip.io for local DNS):
+```bash
+kubectl apply -f - <<EOF
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(\`argocd.192.168.4.21.nip.io\`)
+      kind: Rule
+      services:
+        - name: argocd-server
+          port: 80
+EOF
+```
+
+Access ArgoCD at: `http://argocd.192.168.4.21.nip.io`
+- Username: `admin`
+- Password: from Step 9
+
+---
+
+## Step 11 — Create ApplicationSet
+
+```bash
+kubectl apply -f - <<EOF
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: homelab
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/DeWildeDaan/homelab
+        revision: HEAD
+        directories:
+          - path: apps/*
+  template:
+    metadata:
+      name: '{{path.basename}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/DeWildeDaan/homelab
+        targetRevision: HEAD
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+EOF
+```
+
+This will automatically create an ArgoCD Application for every subdirectory inside `apps/` in your repo.
+
+---
+
+## Troubleshooting
+
+### CoreDNS failing with `subnet.env not found`
+Flannel hasn't initialized yet. Wait for all nodes to join, then:
+```bash
+kubectl delete pod -n kube-system -l k8s-app=kube-dns
+```
+
+### ApplicationSet generating 0 applications
+Your repo must have an `apps/` folder at the root with subdirectories for each app. Each subdirectory becomes its own ArgoCD Application.
+
+### Cross-node TCP timeouts (the original problem)
+Caused by kube-router and k3s built-in network policy controller conflicting. Prevented by setting `disable-network-policy: true` in `/etc/rancher/k3s/config.yaml` before starting k3s.

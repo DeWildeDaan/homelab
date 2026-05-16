@@ -1,0 +1,24 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    service:
+      spec:
+        loadBalancerIP: {{ .Values.traefik.loadBalancerIP }}
+    ports:
+      web:
+        redirectTo:
+          port: websecure
+      websecure:
+        tls:
+          enabled: true
+          # The wildcard cert is issued by cert-manager into kube-system.
+          # Traefik picks it up here as its default cert for any host that
+          # doesn't have an explicit TLS section on its IngressRoute.
+    tlsStore:
+      default:
+        defaultCertificate:
+          secretName: {{ .Values.traefik.wildcardCertSecret }}
