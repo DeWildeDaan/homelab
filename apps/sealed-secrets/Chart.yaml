@@ -3,7 +3,6 @@ name: sealed-secrets
 description: Bitnami Sealed Secrets controller (umbrella chart for ArgoCD)
 type: application
 version: 0.1.0
-appVersion: "0.27.1"
 dependencies:
   - name: sealed-secrets
     version: 2.16.1

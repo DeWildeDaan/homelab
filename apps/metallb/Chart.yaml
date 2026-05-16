@@ -3,7 +3,6 @@ name: metallb
 description: MetalLB L2 LoadBalancer for bare-metal Kubernetes
 type: application
 version: 0.1.0
-appVersion: "0.15.3"
 dependencies:
   - name: metallb
     version: 0.15.3

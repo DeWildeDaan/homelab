@@ -3,7 +3,6 @@ name: cert-manager
 description: cert-manager + Let's Encrypt DNS-01 issuer + wildcard cert for *.home.daandewilde.be
 type: application
 version: 0.1.0
-appVersion: "v1.20.2"
 dependencies:
   - name: cert-manager
     version: v1.20.2
