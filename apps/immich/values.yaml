@@ -72,8 +72,15 @@ immich:
         size: 10Gi
 
   # Server — ingress disabled; Traefik IngressRoute lives in templates/.
+  # The chart's default ClusterIP service is flipped to LoadBalancer so
+  # MetalLB pins it to the LAN IP below (same pattern as adguard).
   server:
     enabled: true
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: 192.168.4.32
+        externalTrafficPolicy: Cluster
     ingress:
       main:
         enabled: false

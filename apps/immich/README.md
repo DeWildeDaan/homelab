@@ -15,6 +15,7 @@ requires a Postgres image with the `vectorchord` extension).
 | Valkey queue | `emptyDir` (queue is ephemeral; rebuilt on restart) |
 | ML model cache | PVC on `nfs-nas` (10Gi) — keeps models across restarts |
 | Ingress | Traefik IngressRoute, wildcard cert from `cert-manager` |
+| LAN IP | `192.168.4.32` (MetalLB LoadBalancer on the server service, port 2283) |
 
 > Postgres uses `local-path` (k3s built-in) because Synology NFS squashes
 > every UID to admin, which breaks Postgres's strict pgdata ownership check.
