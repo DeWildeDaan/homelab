@@ -11,14 +11,17 @@ requires a Postgres image with the `vectorchord` extension).
 | Piece | Backed by |
 | --- | --- |
 | Photo library | `immich-library` PVC on `nfs-nas` (RWX, 1Ti) |
-| Postgres data | `immich-postgres-data` PVC on `nfs-nas` (20Gi) |
+| Postgres data | `immich-postgres-data` PVC on `local-path` (20Gi) — see note below |
 | Valkey queue | `emptyDir` (queue is ephemeral; rebuilt on restart) |
 | ML model cache | PVC on `nfs-nas` (10Gi) — keeps models across restarts |
 | Ingress | Traefik IngressRoute, wildcard cert from `cert-manager` |
 
-> Running Postgres on NFS is acceptable for a homelab but not ideal — fsync
-> semantics differ from local storage. If you start seeing DB latency or
-> corruption warnings, move the postgres PVC to a local-path storage class.
+> Postgres uses `local-path` (k3s built-in) because Synology NFS squashes
+> every UID to admin, which breaks Postgres's strict pgdata ownership check.
+> The PVC is pinned to whichever node it first lands on — if that node dies,
+> postgres won't reschedule until you manually copy `/var/lib/rancher/k3s/storage/<pv>/`
+> to another node. Acceptable for a homelab; revisit if you add Longhorn or
+> similar.
 
 ## Vendor the upstream chart
 
@@ -77,5 +80,6 @@ curl -sS -o /dev/null -w '%{http_code}\n' https://immich.home.daandewilde.be
 Two things to snapshot from the Synology:
 
 - `k8s-storage/immich-immich-library/` — all originals
-- `k8s-storage/immich-immich-postgres-data/` — the database (snapshot while
-  postgres is quiesced, or take a `pg_dump` to a sidecar PVC first)
+- The Postgres data — `pg_dump` to a PVC on `nfs-nas`, then snapshot from the
+  NAS side. The local-path PV itself isn't on the Synology, so it won't get
+  picked up by share-level backups.

@@ -7,7 +7,11 @@ postgres:
   # (rendered to the `immich-postgres` Secret, key `password`).
   storage:
     size: 20Gi
-    storageClass: nfs-nas
+    # local-path (k3s default) — postgres-on-NFS hits ownership errors because
+    # Synology's all-squash hides the in-container UID. Local-path pins the
+    # PVC to one node; fine since postgres is single-replica anyway.
+    storageClass: local-path
+    accessMode: ReadWriteOnce
 
 # Library PVC — Immich's chart refuses to create this for you, so it lives
 # in templates/library-pvc.yaml. Backed by the Synology over NFS.
