@@ -1,0 +1,9 @@
+apiVersion: v2
+name: immich
+description: Immich — self-hosted photo & video backup
+type: application
+version: 0.1.0
+dependencies:
+  - name: immich
+    version: 0.12.0
+    repository: https://immich-app.github.io/immich-charts

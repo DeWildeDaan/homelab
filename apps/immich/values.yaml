@@ -1,0 +1,74 @@
+# Knobs for the in-chart Postgres (templates/postgres.yaml).
+postgres:
+  image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
+  database: immich
+  username: postgres
+  # Password comes from the SealedSecret in templates/postgres-password-sealedsecret.yaml
+  # (rendered to the `immich-postgres` Secret, key `password`).
+  storage:
+    size: 20Gi
+    storageClass: nfs-nas
+
+# Library PVC — Immich's chart refuses to create this for you, so it lives
+# in templates/library-pvc.yaml. Backed by the Synology over NFS.
+library:
+  size: 1Ti
+  storageClass: nfs-nas
+
+ingress:
+  host: immich.home.daandewilde.be
+
+# ---------------------------------------------------------------------------
+# Upstream immich chart values
+# ---------------------------------------------------------------------------
+immich:
+  immich:
+    persistence:
+      library:
+        existingClaim: immich-library
+
+  # DB connection — points at the postgres Deployment in templates/postgres.yaml
+  controllers:
+    main:
+      containers:
+        main:
+          env:
+            DB_HOSTNAME: immich-postgres
+            DB_USERNAME: postgres
+            DB_DATABASE_NAME: immich
+            DB_PORT: "5432"
+            DB_VECTOR_EXTENSION: vectorchord
+            DB_PASSWORD:
+              valueFrom:
+                secretKeyRef:
+                  name: immich-postgres
+                  key: password
+
+  # Bundled Valkey (Redis) — required by Immich.
+  valkey:
+    enabled: true
+    persistence:
+      data:
+        enabled: true
+        type: persistentVolumeClaim
+        accessMode: ReadWriteMany
+        storageClass: nfs-nas
+        size: 2Gi
+
+  # ML model cache — persist so models aren't re-downloaded on every restart.
+  machine-learning:
+    enabled: true
+    persistence:
+      cache:
+        enabled: true
+        type: persistentVolumeClaim
+        accessMode: ReadWriteMany
+        storageClass: nfs-nas
+        size: 10Gi
+
+  # Server — ingress disabled; Traefik IngressRoute lives in templates/.
+  server:
+    enabled: true
+    ingress:
+      main:
+        enabled: false
