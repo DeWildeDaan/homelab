@@ -12,7 +12,7 @@ requires a Postgres image with the `vectorchord` extension).
 | --- | --- |
 | Photo library | `immich-library` PVC on `nfs-nas` (RWX, 1Ti) |
 | Postgres data | `immich-postgres-data` PVC on `nfs-nas` (20Gi) |
-| Valkey queue | PVC on `nfs-nas` (2Gi) |
+| Valkey queue | `emptyDir` (queue is ephemeral; rebuilt on restart) |
 | ML model cache | PVC on `nfs-nas` (10Gi) — keeps models across restarts |
 | Ingress | Traefik IngressRoute, wildcard cert from `cert-manager` |
 

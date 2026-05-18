@@ -45,14 +45,15 @@ immich:
                   key: password
 
   # Bundled Valkey (Redis) — required by Immich.
+  # Queue lives on emptyDir: NFS squash breaks valkey's startup chown, and
+  # the queue is just in-flight jobs (re-discovered on next scan after
+  # pod restart).
   valkey:
     enabled: true
     persistence:
       data:
         enabled: true
-        type: persistentVolumeClaim
-        accessMode: ReadWriteMany
-        storageClass: nfs-nas
+        type: emptyDir
         size: 2Gi
 
   # ML model cache — persist so models aren't re-downloaded on every restart.
