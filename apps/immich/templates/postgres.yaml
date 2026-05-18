@@ -41,6 +41,14 @@ spec:
       labels:
         app: immich-postgres
     spec:
+      # Run as the postgres user from the start. The entrypoint only chown's
+      # PGDATA when it boots as root, which Synology NFS (all_squash to admin)
+      # rejects. Starting as 999 skips the chown branch entirely; writes still
+      # succeed because the NFS server squashes every UID to admin.
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        runAsNonRoot: true
       containers:
         - name: postgres
           image: {{ .Values.postgres.image }}
