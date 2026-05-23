@@ -2,7 +2,7 @@
 # (templates/{gotenberg,tika,redis,postgres}.yaml). Paperless wires to them via
 # PAPERLESS_TIKA_*, PAPERLESS_REDIS, and PAPERLESS_DB* env below.
 gotenberg:
-  image: gotenberg/gotenberg:8.12.1
+  image: gotenberg/gotenberg:8.32.0
 tika:
   image: apache/tika:2.9.2.1-full
 redis:
