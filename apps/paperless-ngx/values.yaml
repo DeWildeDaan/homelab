@@ -34,6 +34,15 @@ paperless-ngx:
     repository: ghcr.io/paperless-ngx/paperless-ngx
     tag: "2.14.7"
 
+  # Flip the default ClusterIP service to LoadBalancer so MetalLB pins it to a
+  # static LAN IP (same pattern as adguard/immich). Traefik still fronts it on
+  # the ingress hostname; this just gives the app a direct LAN address too.
+  service:
+    main:
+      type: LoadBalancer
+      loadBalancerIP: 192.168.4.33
+      externalTrafficPolicy: Cluster
+
   env:
     TZ: Europe/Brussels
     # The chart only sets PAPERLESS_URL when its own ingress is enabled; we use
