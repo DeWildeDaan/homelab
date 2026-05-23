@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: paperless-redis
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: paperless-redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless-redis
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: paperless-redis
+  template:
+    metadata:
+      labels:
+        app: paperless-redis
+    spec:
+      containers:
+        - name: redis
+          image: {{ .Values.redis.image }}
+          imagePullPolicy: IfNotPresent
+          # Celery queue is ephemeral — disable RDB snapshots and AOF so the
+          # container has no on-disk state to manage.
+          args:
+            - --requirepass
+            - $(REDIS_PASSWORD)
+            - --save
+            - ""
+            - --appendonly
+            - "no"
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-secrets
+                  key: redis-password
+          ports:
+            - containerPort: 6379
+              name: redis
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 30
+            periodSeconds: 30
