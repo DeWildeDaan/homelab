@@ -1,12 +1,27 @@
-# Knobs for the in-repo Gotenberg + Tika + Redis sidecars (templates/gotenberg.yaml,
-# templates/tika.yaml, templates/redis.yaml). Paperless wires to them via
-# PAPERLESS_TIKA_* and PAPERLESS_REDIS env below.
+# Knobs for the in-repo Gotenberg + Tika + Redis + Postgres sidecars
+# (templates/{gotenberg,tika,redis,postgres}.yaml). Paperless wires to them via
+# PAPERLESS_TIKA_*, PAPERLESS_REDIS, and PAPERLESS_DB* env below.
 gotenberg:
   image: gotenberg/gotenberg:8.12.1
 tika:
   image: apache/tika:2.9.2.1-full
 redis:
   image: redis:7.4-alpine
+
+# Postgres — same pattern as immich (templates/postgres.yaml). Bitnami removed
+# docker.io/bitnami/postgresql from Docker Hub on 2025-08-28, so we replace the
+# bundled subchart with a vanilla postgres Deployment.
+postgres:
+  image: postgres:16-alpine
+  database: paperless
+  username: paperless
+  storage:
+    size: 10Gi
+    # local-path (k3s default) — same reasoning as immich: Synology NFS
+    # all-squash hides the in-container UID and postgres init refuses to
+    # chown PGDATA. Single-replica, so single-node pinning is fine.
+    storageClass: local-path
+    accessMode: ReadWriteOnce
 
 ingress:
   host: paperless.home.daandewilde.be
@@ -51,6 +66,18 @@ paperless-ngx:
           name: paperless-secrets
           key: redis-password
     PAPERLESS_REDIS: redis://:$(A_REDIS_PASSWORD)@paperless-redis:6379
+    # Database → in-repo postgres (templates/postgres.yaml). Subchart is
+    # disabled below; these vars take the place of what common.yaml would
+    # have emitted.
+    PAPERLESS_DBENGINE: postgresql
+    PAPERLESS_DBHOST: paperless-postgres
+    PAPERLESS_DBNAME: paperless
+    PAPERLESS_DBUSER: paperless
+    PAPERLESS_DBPASS:
+      valueFrom:
+        secretKeyRef:
+          name: paperless-postgres
+          key: postgres-password
 
   # All four paperless volumes on the Synology over NFS (RWX).
   persistence:
@@ -75,27 +102,11 @@ paperless-ngx:
       accessMode: ReadWriteMany
       size: 5Gi
 
-  # Postgres — bitnami subchart, superuser password pulled from the SealedSecret
-  # in templates/postgres-password-sealedsecret.yaml. We use the `postgres`
-  # superuser directly (same pattern as immich) to avoid juggling two passwords;
-  # the chart-rendered PAPERLESS_DBUSER falls back to "postgres" when
-  # auth.username is unset, and it reads key `postgres-password` from the
-  # existingSecret in that case.
-  #
-  # Data PVC on local-path for the same reason as immich's postgres — Synology
-  # NFS squashes UIDs and bitnami's pgdata ownership check fails.
+  # Postgres — bundled bitnami subchart disabled; replaced by the in-repo
+  # Deployment in templates/postgres.yaml (same pattern as immich). Bitnami
+  # removed docker.io/bitnami/postgresql from Docker Hub on 2025-08-28.
   postgresql:
-    enabled: true
-    auth:
-      database: paperless
-      existingSecret: paperless-postgres
-    primary:
-      persistence:
-        enabled: true
-        storageClass: local-path
-        accessModes:
-          - ReadWriteOnce
-        size: 10Gi
+    enabled: false
 
   # Redis — bundled bitnami/redis subchart disabled; replaced by the in-repo
   # Deployment in templates/redis.yaml. Bitnami removed docker.io/bitnami/redis
