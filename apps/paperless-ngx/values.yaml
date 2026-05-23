@@ -40,6 +40,10 @@ paperless-ngx:
     # a Traefik IngressRoute instead, so set it explicitly here.
     PAPERLESS_URL: https://paperless.home.daandewilde.be
     PAPERLESS_OCR_LANGUAGE: eng+nld
+    # Singular OCR_LANGUAGE above picks which packs to use; the plural
+    # OCR_LANGUAGES below tells the entrypoint which extra tesseract-ocr-*
+    # packs to apt-install at boot (eng ships in the base image).
+    PAPERLESS_OCR_LANGUAGES: nld
     # Django secret — sealed in templates/paperless-secrets-sealedsecret.yaml.
     PAPERLESS_SECRET_KEY:
       valueFrom:
