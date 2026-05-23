@@ -1,0 +1,100 @@
+# Knobs for the in-repo Gotenberg + Tika sidecars (templates/gotenberg.yaml,
+# templates/tika.yaml). Paperless wires to them via PAPERLESS_TIKA_* env below.
+gotenberg:
+  image: gotenberg/gotenberg:8.12.1
+tika:
+  image: apache/tika:2.9.2.1-full
+
+ingress:
+  host: paperless.home.daandewilde.be
+
+# ---------------------------------------------------------------------------
+# Upstream gabe565/paperless-ngx chart values
+# ---------------------------------------------------------------------------
+paperless-ngx:
+  image:
+    repository: ghcr.io/paperless-ngx/paperless-ngx
+    tag: "2.14.7"
+
+  env:
+    TZ: Europe/Brussels
+    # The chart only sets PAPERLESS_URL when its own ingress is enabled; we use
+    # a Traefik IngressRoute instead, so set it explicitly here.
+    PAPERLESS_URL: https://paperless.home.daandewilde.be
+    PAPERLESS_OCR_LANGUAGE: eng+nld
+    # Django secret — sealed in templates/paperless-secrets-sealedsecret.yaml.
+    PAPERLESS_SECRET_KEY:
+      valueFrom:
+        secretKeyRef:
+          name: paperless-secrets
+          key: secret-key
+    # Office-doc pipeline → in-repo Gotenberg + Tika services.
+    PAPERLESS_TIKA_ENABLED: "1"
+    PAPERLESS_TIKA_ENDPOINT: http://paperless-tika:9998
+    PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://paperless-gotenberg:3000
+    # First-boot superuser — paperless skips creation if it already exists.
+    PAPERLESS_ADMIN_USER: admin
+    PAPERLESS_ADMIN_PASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: paperless-secrets
+          key: admin-password
+
+  # All four paperless volumes on the Synology over NFS (RWX).
+  persistence:
+    data:
+      enabled: true
+      storageClass: nfs-nas
+      accessMode: ReadWriteMany
+      size: 5Gi
+    media:
+      enabled: true
+      storageClass: nfs-nas
+      accessMode: ReadWriteMany
+      size: 150Gi
+    consume:
+      enabled: true
+      storageClass: nfs-nas
+      accessMode: ReadWriteMany
+      size: 5Gi
+    export:
+      enabled: true
+      storageClass: nfs-nas
+      accessMode: ReadWriteMany
+      size: 5Gi
+
+  # Postgres — bitnami subchart, superuser password pulled from the SealedSecret
+  # in templates/postgres-password-sealedsecret.yaml. We use the `postgres`
+  # superuser directly (same pattern as immich) to avoid juggling two passwords;
+  # the chart-rendered PAPERLESS_DBUSER falls back to "postgres" when
+  # auth.username is unset, and it reads key `postgres-password` from the
+  # existingSecret in that case.
+  #
+  # Data PVC on local-path for the same reason as immich's postgres — Synology
+  # NFS squashes UIDs and bitnami's pgdata ownership check fails.
+  postgresql:
+    enabled: true
+    auth:
+      database: paperless
+      existingSecret: paperless-postgres
+    primary:
+      persistence:
+        enabled: true
+        storageClass: local-path
+        accessModes:
+          - ReadWriteOnce
+        size: 10Gi
+
+  # Redis — broker for paperless's celery workers. Queue is ephemeral so no
+  # persistence; password sealed alongside PAPERLESS_SECRET_KEY for simplicity.
+  redis:
+    enabled: true
+    auth:
+      enabled: true
+      existingSecret: paperless-secrets
+      existingSecretPasswordKey: redis-password
+    master:
+      persistence:
+        enabled: false
+    replica:
+      replicaCount: 0

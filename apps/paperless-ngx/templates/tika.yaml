@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: paperless-tika
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: paperless-tika
+  ports:
+    - name: http
+      port: 9998
+      targetPort: 9998
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless-tika
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paperless-tika
+  template:
+    metadata:
+      labels:
+        app: paperless-tika
+    spec:
+      containers:
+        - name: tika
+          image: {{ .Values.tika.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9998
+              name: http
+          readinessProbe:
+            tcpSocket:
+              port: 9998
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 9998
+            initialDelaySeconds: 60
+            periodSeconds: 30

@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: paperless-gotenberg
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: paperless-gotenberg
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless-gotenberg
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paperless-gotenberg
+  template:
+    metadata:
+      labels:
+        app: paperless-gotenberg
+    spec:
+      containers:
+        - name: gotenberg
+          image: {{ .Values.gotenberg.image }}
+          imagePullPolicy: IfNotPresent
+          # Recommended args from paperless-ngx docs: disable routes paperless
+          # doesn't use and let chromium handle network-fetch responses.
+          args:
+            - gotenberg
+            - --chromium-disable-javascript=true
+            - --chromium-allow-list=file:///tmp/.*
+          ports:
+            - containerPort: 3000
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
