@@ -1,0 +1,20 @@
+---
+# Single shared "data root" PVC mounted at /data in every app that needs it.
+# This is the TRaSH-Guides layout — hardlinks/atomic-moves between downloads
+# and the final library only work when both live on the same filesystem,
+# so we use ONE PVC for everything. Subdirectories used by the apps:
+#
+#   /data/torrents/{movies,tv}      ← qBittorrent writes here
+#   /data/media/{movies,tv}         ← Sonarr/Radarr move into here, Jellyfin reads
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-volume
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-nas
+  resources:
+    requests:
+      storage: {{ .Values.storage.dataSize }}

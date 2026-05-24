@@ -1,0 +1,32 @@
+{{- /*
+One IngressRoute per app at <name>.home.daandewilde.be → app's ClusterIP
+service. FlareSolverr stays internal (Prowlarr reaches it directly).
+bjw-s/app-template names a single service after fullnameOverride (no suffix),
+so the service name matches the app name 1:1.
+*/ -}}
+{{- $apps := dict
+  "sonarr"      8989
+  "radarr"      7878
+  "prowlarr"    9696
+  "qbittorrent" 8080
+  "jellyseerr"  5055
+  "jellyfin"    8096
+}}
+{{- range $name, $port := $apps }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ $name }}.{{ $.Values.ingress.host }}`)
+      kind: Rule
+      services:
+        - name: {{ $name }}
+          port: {{ $port }}
+  tls: {}
+{{- end }}

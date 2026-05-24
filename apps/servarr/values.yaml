@@ -1,0 +1,315 @@
+# Domain base — each app gets its own subdomain via templates/ingressroute.yaml.
+ingress:
+  host: home.daandewilde.be
+
+storage:
+  # Single shared PVC for torrents/usenet/media (TRaSH layout) — see
+  # templates/storage.yaml for the directory map.
+  dataSize: 4Ti
+
+# Static IP for direct LAN/Chromecast access to Jellyfin. Other apps reach
+# their UIs via Traefik IngressRoute only.
+jellyfinLoadBalancerIP: 192.168.4.35
+
+# Shared LSIO container settings used in env blocks below. Synology NFS
+# squashes UIDs, so the exact PUID/PGID values mostly affect in-container
+# permissions for files written by these processes — keep them consistent
+# so apps can read each other's output.
+puid: &puid "1000"
+pgid: &pgid "1000"
+tz: &tz Europe/Brussels
+
+# ===========================================================================
+# Indexer / automation tier
+# ===========================================================================
+
+prowlarr:
+  fullnameOverride: prowlarr
+  controllers:
+    prowlarr:
+      containers:
+        app:
+          image:
+            repository: lscr.io/linuxserver/prowlarr
+            tag: 1.27.0
+          env:
+            PUID: *puid
+            PGID: *pgid
+            TZ: *tz
+  service:
+    app:
+      controller: prowlarr
+      ports:
+        http:
+          port: 9696
+  persistence:
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: nfs-nas
+      accessMode: ReadWriteMany
+      size: 1Gi
+      advancedMounts:
+        prowlarr:
+          app:
+            - path: /config
+
+sonarr:
+  fullnameOverride: sonarr
+  controllers:
+    sonarr:
+      containers:
+        app:
+          image:
+            repository: lscr.io/linuxserver/sonarr
+            tag: 4.0.10
+          env:
+            PUID: *puid
+            PGID: *pgid
+            TZ: *tz
+  service:
+    app:
+      controller: sonarr
+      ports:
+        http:
+          port: 8989
+  persistence:
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: nfs-nas
+      accessMode: ReadWriteMany
+      size: 1Gi
+      advancedMounts:
+        sonarr:
+          app:
+            - path: /config
+    data:
+      enabled: true
+      type: persistentVolumeClaim
+      existingClaim: data-volume
+      advancedMounts:
+        sonarr:
+          app:
+            - path: /data
+
+radarr:
+  fullnameOverride: radarr
+  controllers:
+    radarr:
+      containers:
+        app:
+          image:
+            repository: lscr.io/linuxserver/radarr
+            tag: 5.16.3
+          env:
+            PUID: *puid
+            PGID: *pgid
+            TZ: *tz
+  service:
+    app:
+      controller: radarr
+      ports:
+        http:
+          port: 7878
+  persistence:
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: nfs-nas
+      accessMode: ReadWriteMany
+      size: 1Gi
+      advancedMounts:
+        radarr:
+          app:
+            - path: /config
+    data:
+      enabled: true
+      type: persistentVolumeClaim
+      existingClaim: data-volume
+      advancedMounts:
+        radarr:
+          app:
+            - path: /data
+
+# FlareSolverr — Cloudflare bypass for Prowlarr. Internal only, no PVC,
+# no ingress; Prowlarr reaches it at http://flaresolverr:8191.
+flaresolverr:
+  fullnameOverride: flaresolverr
+  controllers:
+    flaresolverr:
+      containers:
+        app:
+          image:
+            repository: ghcr.io/flaresolverr/flaresolverr
+            tag: v3.3.21
+          env:
+            LOG_LEVEL: info
+            TZ: *tz
+  service:
+    app:
+      controller: flaresolverr
+      ports:
+        http:
+          port: 8191
+
+# ===========================================================================
+# Download tier
+# ===========================================================================
+
+# qBittorrent shares a pod with the gluetun sidecar. They live in the same
+# network namespace; gluetun brings up wg0 with CAP_NET_ADMIN and rewrites
+# the pod's default route, so qBittorrent's outbound torrent traffic egresses
+# via Mullvad. The webUI port is allow-listed in gluetun's firewall so
+# kube-proxy traffic from the Service can still reach qBittorrent:8080.
+qbittorrent:
+  fullnameOverride: qbittorrent
+  controllers:
+    qbittorrent:
+      containers:
+        gluetun:
+          image:
+            repository: ghcr.io/qdm12/gluetun
+            tag: v3.40.0
+          env:
+            VPN_SERVICE_PROVIDER: mullvad
+            VPN_TYPE: wireguard
+            # Mullvad picks a server in this country; adjust if you want a
+            # specific exit. Common low-latency picks: Netherlands, Germany.
+            SERVER_CITIES: Amsterdam
+            # qBittorrent UI must reach the pod from outside the tunnel.
+            FIREWALL_INPUT_PORTS: "8080"
+            # Allow LAN-side traffic from kube-proxy / cluster pods to bypass
+            # the WG default route (k3s defaults: pods 10.42/16, svc 10.43/16).
+            FIREWALL_OUTBOUND_SUBNETS: "10.42.0.0/16,10.43.0.0/16"
+            HEALTH_VPN_DURATION_INITIAL: 60s
+          envFrom:
+            - secretRef:
+                name: servarr-vpn
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+        app:
+          image:
+            repository: lscr.io/linuxserver/qbittorrent
+            tag: 5.0.0
+          env:
+            PUID: *puid
+            PGID: *pgid
+            TZ: *tz
+            WEBUI_PORT: "8080"
+  service:
+    app:
+      controller: qbittorrent
+      ports:
+        http:
+          port: 8080
+  persistence:
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: nfs-nas
+      accessMode: ReadWriteMany
+      size: 1Gi
+      advancedMounts:
+        qbittorrent:
+          app:
+            - path: /config
+    data:
+      enabled: true
+      type: persistentVolumeClaim
+      existingClaim: data-volume
+      advancedMounts:
+        qbittorrent:
+          app:
+            - path: /data
+
+# ===========================================================================
+# Streaming tier
+# ===========================================================================
+
+jellyseerr:
+  fullnameOverride: jellyseerr
+  controllers:
+    jellyseerr:
+      containers:
+        app:
+          image:
+            repository: docker.io/fallenbagel/jellyseerr
+            tag: "2.2.3"
+          env:
+            TZ: *tz
+            LOG_LEVEL: info
+  service:
+    app:
+      controller: jellyseerr
+      ports:
+        http:
+          port: 5055
+  persistence:
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: nfs-nas
+      accessMode: ReadWriteMany
+      size: 1Gi
+      advancedMounts:
+        jellyseerr:
+          app:
+            - path: /app/config
+
+# Jellyfin uses the official upstream image (linuxserver also works but the
+# official one has better hardware-accel support). Transcode cache on
+# emptyDir — regenerated per pod, not worth persisting.
+jellyfin:
+  fullnameOverride: jellyfin
+  controllers:
+    jellyfin:
+      containers:
+        app:
+          image:
+            repository: docker.io/jellyfin/jellyfin
+            tag: "10.10.3"
+          env:
+            TZ: *tz
+            JELLYFIN_PublishedServerUrl: https://jellyfin.home.daandewilde.be
+  service:
+    # LoadBalancer pinned via MetalLB so Chromecasts/TVs on the LAN can reach
+    # Jellyfin directly without going through Traefik.
+    app:
+      controller: jellyfin
+      type: LoadBalancer
+      loadBalancerIP: 192.168.4.35
+      externalTrafficPolicy: Cluster
+      ports:
+        http:
+          port: 8096
+  persistence:
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: nfs-nas
+      accessMode: ReadWriteMany
+      size: 5Gi
+      advancedMounts:
+        jellyfin:
+          app:
+            - path: /config
+    cache:
+      enabled: true
+      type: emptyDir
+      sizeLimit: 10Gi
+      advancedMounts:
+        jellyfin:
+          app:
+            - path: /cache
+    # Media is mounted read-only — Jellyfin only reads; Sonarr/Radarr write.
+    data:
+      enabled: true
+      type: persistentVolumeClaim
+      existingClaim: data-volume
+      advancedMounts:
+        jellyfin:
+          app:
+            - path: /data
+              readOnly: true

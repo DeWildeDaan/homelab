@@ -1,0 +1,37 @@
+apiVersion: v2
+name: servarr
+description: Servarr media stack (Jellyfin + *arr + downloaders) using bjw-s app-template
+type: application
+version: 0.1.0
+# Eight thin wrappers around bjw-s/app-template, each a separate Helm dependency
+# aliased to its app name. Aliasing lets Helm install the same chart multiple
+# times in one release with distinct sections under values.yaml (sonarr.*, etc.).
+dependencies:
+  - name: app-template
+    alias: sonarr
+    version: 3.6.1
+    repository: https://bjw-s-labs.github.io/helm-charts
+  - name: app-template
+    alias: radarr
+    version: 3.6.1
+    repository: https://bjw-s-labs.github.io/helm-charts
+  - name: app-template
+    alias: prowlarr
+    version: 3.6.1
+    repository: https://bjw-s-labs.github.io/helm-charts
+  - name: app-template
+    alias: qbittorrent
+    version: 3.6.1
+    repository: https://bjw-s-labs.github.io/helm-charts
+  - name: app-template
+    alias: jellyseerr
+    version: 3.6.1
+    repository: https://bjw-s-labs.github.io/helm-charts
+  - name: app-template
+    alias: jellyfin
+    version: 3.6.1
+    repository: https://bjw-s-labs.github.io/helm-charts
+  - name: app-template
+    alias: flaresolverr
+    version: 3.6.1
+    repository: https://bjw-s-labs.github.io/helm-charts
