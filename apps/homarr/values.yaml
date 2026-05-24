@@ -1,5 +1,5 @@
 ingress:
-  host: home.daandewilde.be
+  host: dashboard.home.daandewilde.be
 
 # ---------------------------------------------------------------------------
 # Upstream homarr-labs/homarr chart values
