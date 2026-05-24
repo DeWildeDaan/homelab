@@ -1,0 +1,32 @@
+ingress:
+  host: home.daandewilde.be
+
+# ---------------------------------------------------------------------------
+# Upstream homarr-labs/homarr chart values
+# ---------------------------------------------------------------------------
+homarr:
+  env:
+    TZ: Europe/Brussels
+
+  # Upstream chart's Service template doesn't expose loadBalancerIP, so we
+  # disable it and ship our own in templates/service.yaml — pinned at
+  # 192.168.4.34 via MetalLB (same pattern as adguard/immich/paperless).
+  service:
+    enabled: false
+
+  # SQLite database lives on local-path — single-replica app, and sqlite over
+  # NFS hits locking issues. PVC pins to whichever node it first lands on.
+  persistence:
+    homarrDatabase:
+      enabled: true
+      storageClassName: local-path
+      accessMode: ReadWriteOnce
+      size: 1Gi
+
+  # DB encryption key — sealed in templates/db-encryption-sealedsecret.yaml.
+  # `existingSecret` here matches the SealedSecret's metadata.name; the chart
+  # mounts SECRET_ENCRYPTION_KEY from the key listed under `key:`.
+  envSecrets:
+    dbEncryption:
+      existingSecret: homarr-db-encryption
+      key: db-encryption-key
