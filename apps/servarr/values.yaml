@@ -140,9 +140,14 @@ flaresolverr:
     flaresolverr:
       containers:
         app:
+          # Community fork — uses `nodriver` instead of upstream's undetected-
+          # chromedriver, which still beats current Cloudflare. Upstream
+          # flaresolverr/flaresolverr:v3.3.x times out on 1337x and similar.
+          # Rolling `nodriver` tag (no semver) — fine because the fork ships
+          # only one stream.
           image:
-            repository: ghcr.io/flaresolverr/flaresolverr
-            tag: v3.3.21
+            repository: docker.io/21hsmw/flaresolverr
+            tag: nodriver
           env:
             LOG_LEVEL: info
             TZ: *tz
@@ -183,6 +188,7 @@ qbittorrent:
             # the WG default route (k3s defaults: pods 10.42/16, svc 10.43/16).
             FIREWALL_OUTBOUND_SUBNETS: "10.42.0.0/16,10.43.0.0/16"
             HEALTH_VPN_DURATION_INITIAL: 60s
+            WIREGUARD_MTU: "1320"
           envFrom:
             - secretRef:
                 name: servarr-vpn
