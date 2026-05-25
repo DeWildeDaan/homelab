@@ -31,7 +31,7 @@ prowlarr:
         app:
           image:
             repository: lscr.io/linuxserver/prowlarr
-            tag: 1.27.0
+            tag: 2.4.0-nightly
           env:
             PUID: *puid
             PGID: *pgid
@@ -69,7 +69,7 @@ sonarr:
         app:
           image:
             repository: lscr.io/linuxserver/sonarr
-            tag: 4.0.10
+            tag: 4.0.17
           env:
             PUID: *puid
             PGID: *pgid
@@ -116,7 +116,7 @@ radarr:
         app:
           image:
             repository: lscr.io/linuxserver/radarr
-            tag: 5.16.3
+            tag: 6.2.0-nightly
           env:
             PUID: *puid
             PGID: *pgid
@@ -193,7 +193,7 @@ qbittorrent:
         gluetun:
           image:
             repository: ghcr.io/qdm12/gluetun
-            tag: v3.40.0
+            tag: v3.41.1
           env:
             VPN_SERVICE_PROVIDER: mullvad
             VPN_TYPE: wireguard
@@ -212,7 +212,7 @@ qbittorrent:
         app:
           image:
             repository: lscr.io/linuxserver/qbittorrent
-            tag: 5.0.0
+            tag: 5.2.0
           env:
             PUID: *puid
             PGID: *pgid
@@ -264,7 +264,7 @@ jellyseerr:
         app:
           image:
             repository: docker.io/fallenbagel/jellyseerr
-            tag: "2.2.3"
+            tag: "sha-42eec24"
           env:
             TZ: *tz
             LOG_LEVEL: info
@@ -301,7 +301,7 @@ jellyfin:
         app:
           image:
             repository: docker.io/jellyfin/jellyfin
-            tag: "10.10.3"
+            tag: "10.11.10"
           env:
             TZ: *tz
             JELLYFIN_PublishedServerUrl: https://jellyfin.home.daandewilde.be
