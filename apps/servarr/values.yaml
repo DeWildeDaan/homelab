@@ -347,3 +347,103 @@ jellyfin:
           app:
             - path: /data
               readOnly: true
+
+# ===========================================================================
+# Subtitle management
+# ===========================================================================
+
+bazarr:
+  fullnameOverride: bazarr
+
+  controllers:
+    bazarr:
+      pod:
+        nodeSelector:
+          media: "true"
+
+      containers:
+        app:
+          image:
+            repository: lscr.io/linuxserver/bazarr
+            tag: 1.5.6
+          env:
+            PUID: *puid
+            PGID: *pgid
+            TZ: *tz
+
+  service:
+    app:
+      controller: bazarr
+      ports:
+        http:
+          port: 6767
+
+  persistence:
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: local-path
+      accessMode: ReadWriteOnce
+      size: 2Gi
+      advancedMounts:
+        bazarr:
+          app:
+            - path: /config
+
+    data:
+      enabled: true
+      type: persistentVolumeClaim
+      existingClaim: data-volume
+      advancedMounts:
+        bazarr:
+          app:
+            - path: /data
+
+# ===========================================================================
+# Cleanup / retention automation
+# ===========================================================================
+
+maintainerr:
+  fullnameOverride: maintainerr
+
+  controllers:
+    maintainerr:
+      pod:
+        nodeSelector:
+          media: "true"
+
+      containers:
+        app:
+          image:
+            repository: ghcr.io/maintainerr/maintainerr
+            tag: 3.12.1
+          env:
+            TZ: *tz
+
+  service:
+    app:
+      controller: maintainerr
+      ports:
+        http:
+          port: 6246
+
+  persistence:
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: local-path
+      accessMode: ReadWriteOnce
+      size: 2Gi
+      advancedMounts:
+        maintainerr:
+          app:
+            - path: /opt/data
+
+    data:
+      enabled: true
+      type: persistentVolumeClaim
+      existingClaim: data-volume
+      advancedMounts:
+        bazarr:
+          app:
+            - path: /data

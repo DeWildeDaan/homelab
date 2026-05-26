@@ -35,3 +35,11 @@ dependencies:
     alias: flaresolverr
     version: 3.6.1
     repository: https://bjw-s-labs.github.io/helm-charts
+  - name: app-template
+    alias: bazarr
+    version: 3.6.1
+    repository: https://bjw-s-labs.github.io/helm-charts
+  - name: app-template
+    alias: maintainerr
+    version: 3.6.1
+    repository: https://bjw-s-labs.github.io/helm-charts
