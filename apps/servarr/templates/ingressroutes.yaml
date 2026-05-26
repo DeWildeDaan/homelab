@@ -11,6 +11,8 @@ so the service name matches the app name 1:1.
   "qbittorrent" 8080
   "jellyseerr"  5055
   "jellyfin"    8096
+  "bazarr"      6767
+  "maintainerr" 6246
 }}
 {{- range $name, $port := $apps }}
 ---
