@@ -444,6 +444,6 @@ maintainerr:
       type: persistentVolumeClaim
       existingClaim: data-volume
       advancedMounts:
-        bazarr:
+        maintainerr:
           app:
             - path: /data
