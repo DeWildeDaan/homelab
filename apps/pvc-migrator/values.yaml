@@ -1,8 +1,8 @@
-sourcePVC: "temp-prowlarr-config"
-destinationPVC: "prowlarr-config-lh"
+sourcePVC: "qbittorrent-config"
+destinationPVC: "temp-qbittorrent-config"
 
 
-tempPVCName: "temp-prowlarr-config"
+tempPVCName: "temp-qbittorrent-config"
 
 namespace: "servarr"
 size: 5Gi
