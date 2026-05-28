@@ -329,7 +329,7 @@ jellyfin:
       storageClass: longhorn
       nameOverride: config-lh
       accessMode: ReadWriteOnce
-      size: 2Gi
+      size: 20Gi
       advancedMounts:
         jellyfin:
           app:
