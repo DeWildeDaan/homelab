@@ -1,7 +1,7 @@
 sourcePVC: "bazarr-config"
 destinationPVC: "temp-longhorn-pvc"
 
-namespace: "paperless-ngx"
+namespace: "servarr"
 size: 2Gi
 
 image: alpine:3.20
