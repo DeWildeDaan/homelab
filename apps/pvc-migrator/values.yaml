@@ -1,8 +1,8 @@
-sourcePVC: "temp-sonarr-config"
-destinationPVC: "sonarr-config-lh"
+sourcePVC: "jellyfin-config-lh"
+destinationPVC: "temp-jellyfin-config"
 
 
-tempPVCName: "temp-sonarr-config"
+tempPVCName: "temp-jellyfin-config"
 
 namespace: "servarr"
 size: 5Gi

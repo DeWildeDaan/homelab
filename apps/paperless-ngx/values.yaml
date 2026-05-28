@@ -16,7 +16,7 @@ postgres:
   database: paperless
   username: paperless
   storage:
-    size: 10Gi
+    size: 20Gi
     # local-path (k3s default) — same reasoning as immich: Synology NFS
     # all-squash hides the in-container UID and postgres init refuses to
     # chown PGDATA. Single-replica, so single-node pinning is fine.
