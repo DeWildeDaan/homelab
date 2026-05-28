@@ -442,7 +442,8 @@ maintainerr:
     config:
       enabled: true
       type: persistentVolumeClaim
-      storageClass: local-path
+      storageClass: longhorn
+      nameOverride: config-lh
       accessMode: ReadWriteOnce
       size: 2Gi
       advancedMounts:

@@ -1,5 +1,5 @@
-sourcePVC: "maintainerr-config"
-destinationPVC: "temp-maintainerr-config"
+sourcePVC: "temp-maintainerr-config"
+destinationPVC: "maintainerr-config-lh"
 
 
 tempPVCName: "temp-maintainerr-config"
