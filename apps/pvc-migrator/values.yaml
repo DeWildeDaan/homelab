@@ -1,8 +1,8 @@
-sourcePVC: "temp-qbittorrent-config"
-destinationPVC: "qbittorrent-config-lh"
+sourcePVC: "radarr-config"
+destinationPVC: "temp-radarr-config"
 
 
-tempPVCName: "temp-qbittorrent-config"
+tempPVCName: "temp-radarr-config"
 
 namespace: "servarr"
 size: 5Gi
