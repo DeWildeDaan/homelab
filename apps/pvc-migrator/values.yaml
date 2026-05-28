@@ -1,5 +1,5 @@
 sourcePVC: "temp-jellyfin-config"
-destinationPVC: "jellyfin-config-lh-2"
+destinationPVC: "jellyfin-config-lh"
 
 
 tempPVCName: "temp-jellyfin-config"
