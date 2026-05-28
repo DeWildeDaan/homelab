@@ -1,5 +1,5 @@
-sourcePVC: "sonarr-config"
-destinationPVC: "temp-sonarr-config"
+sourcePVC: "temp-sonarr-config"
+destinationPVC: "sonarr-config-lh"
 
 
 tempPVCName: "temp-sonarr-config"
