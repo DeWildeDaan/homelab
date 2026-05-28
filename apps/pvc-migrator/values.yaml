@@ -1,5 +1,5 @@
-sourcePVC: "paperless-postgres-data"
-destinationPVC: "temp-longhorn-pvc"
+sourcePVC: "temp-longhorn-pvc"
+destinationPVC: "paperless-postgres-data"
 
 namespace: "paperless-ngx"
 size: 10Gi

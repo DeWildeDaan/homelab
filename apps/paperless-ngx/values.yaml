@@ -20,7 +20,7 @@ postgres:
     # local-path (k3s default) — same reasoning as immich: Synology NFS
     # all-squash hides the in-container UID and postgres init refuses to
     # chown PGDATA. Single-replica, so single-node pinning is fine.
-    storageClass: local-path
+    storageClass: longhorn
     accessMode: ReadWriteOnce
 
 ingress:
