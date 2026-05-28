@@ -1,8 +1,8 @@
-sourcePVC: "temp-jellyseerr-config"
-destinationPVC: "jellyseerr-config-lh"
+sourcePVC: "maintainerr-config"
+destinationPVC: "temp-maintainerr-config"
 
 
-tempPVCName: "temp-jellyseerr-config"
+tempPVCName: "temp-maintainerr-config"
 
 namespace: "servarr"
 size: 5Gi
