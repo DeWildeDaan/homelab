@@ -12,3 +12,4 @@
 | servarr       | qbittorrent-config              | Bound  | pvc-59fcc12a-9c57-4b36-bb00-6dd47e591d5f | 5Gi  | RWO         | local-path    |
 | servarr       | radarr-config                   | Bound  | pvc-69c9d2ee-e2c3-47e9-88fc-29ddf326556a | 5Gi  | RWO         | local-path    |
 | servarr       | sonarr-config                   | Bound  | pvc-5b8a24cc-71d2-4584-9aaa-f9e5d01a0c4d | 5Gi  | RWO         | local-path    |
+![alt text](image.png)
