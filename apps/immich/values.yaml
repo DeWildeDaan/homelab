@@ -10,7 +10,7 @@ postgres:
     # local-path (k3s default) — postgres-on-NFS hits ownership errors because
     # Synology's all-squash hides the in-container UID. Local-path pins the
     # PVC to one node; fine since postgres is single-replica anyway.
-    storageClass: local-path
+    storageClass: longhorn
     accessMode: ReadWriteOnce
 
 # Library PVC — Immich's chart refuses to create this for you, so it lives

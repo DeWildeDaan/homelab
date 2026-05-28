@@ -1,5 +1,5 @@
-sourcePVC: "immich-postgres-data"
-destinationPVC: "temp-longhorn-pvc"
+sourcePVC: "temp-longhorn-pvc"
+destinationPVC: "immich-postgres-data"
 
 namespace: "immich"
 size: 20Gi
