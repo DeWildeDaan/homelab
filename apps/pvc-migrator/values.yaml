@@ -1,8 +1,8 @@
-sourcePVC: "temp-longhorn-pvc"
-destinationPVC: "immich-postgres-data-lh"
+sourcePVC: "paperless-postgres-data"
+destinationPVC: "temp-longhorn-pvc"
 
-namespace: "immich"
-size: 20Gi
+namespace: "paperless-ngx"
+size: 10Gi
 
 image: alpine:3.20
 
