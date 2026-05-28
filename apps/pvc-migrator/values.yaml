@@ -2,7 +2,7 @@ sourcePVC: "immich-postgres-data"
 destinationPVC: "temp-longhorn-pvc"
 
 namespace: "immich"
-size: 20GB
+size: 20Gi
 
 image: alpine:3.20
 
