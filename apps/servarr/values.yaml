@@ -328,7 +328,8 @@ jellyfin:
     config:
       enabled: true
       type: persistentVolumeClaim
-      storageClass: local-path
+      storageClass: longhorn
+      nameOverride: config-lh
       accessMode: ReadWriteOnce
       size: 20Gi
       advancedMounts:
