@@ -256,6 +256,7 @@ jellyseerr:
 
   controllers:
     jellyseerr:
+      replicas: 0
       pod:
         nodeSelector:
           media: "true"
@@ -293,6 +294,7 @@ jellyfin:
 
   controllers:
     jellyfin:
+      replicas: 0
       pod:
         nodeSelector:
           media: "true"
