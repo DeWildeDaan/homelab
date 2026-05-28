@@ -23,6 +23,7 @@ prowlarr:
 
   controllers:
     prowlarr:
+      replicas: 0
       pod:
         nodeSelector:
           media: "true"
@@ -61,6 +62,7 @@ sonarr:
 
   controllers:
     sonarr:
+      replicas: 0
       pod:
         nodeSelector:
           media: "true"
@@ -108,6 +110,7 @@ radarr:
 
   controllers:
     radarr:
+      replicas: 0
       pod:
         nodeSelector:
           media: "true"
@@ -156,6 +159,7 @@ flaresolverr:
 
   controllers:
     flaresolverr:
+      replicas: 0
       pod:
         nodeSelector:
           media: "true"
@@ -185,6 +189,7 @@ qbittorrent:
 
   controllers:
     qbittorrent:
+      replicas: 0
       pod:
         nodeSelector:
           media: "true"
@@ -359,6 +364,7 @@ bazarr:
 
   controllers:
     bazarr:
+      replicas: 0
       pod:
         nodeSelector:
           media: "true"
@@ -410,6 +416,7 @@ maintainerr:
 
   controllers:
     maintainerr:
+      replicas: 0
       pod:
         nodeSelector:
           media: "true"
