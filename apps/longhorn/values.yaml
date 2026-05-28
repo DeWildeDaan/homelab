@@ -10,6 +10,9 @@ longhorn:
   persistence:
     defaultClass: true
     defaultClassReplicaCount: 3
+  
+  preUpgradeChecker:
+    jobEnabled: false
 
   ingress:
     enabled: false
