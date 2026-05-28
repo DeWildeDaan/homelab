@@ -1,8 +1,8 @@
-sourcePVC: "temp-maintainerr-config"
-destinationPVC: "maintainerr-config-lh"
+sourcePVC: "prowlarr-config"
+destinationPVC: "temp-prowlarr-config"
 
 
-tempPVCName: "temp-maintainerr-config"
+tempPVCName: "temp-prowlarr-config"
 
 namespace: "servarr"
 size: 5Gi
