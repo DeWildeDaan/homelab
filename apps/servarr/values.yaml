@@ -390,7 +390,8 @@ bazarr:
     config:
       enabled: true
       type: persistentVolumeClaim
-      storageClass: local-path
+      storageClass: longhorn
+      storageClassName: bazarr-config-lh
       accessMode: ReadWriteOnce
       size: 2Gi
       advancedMounts:

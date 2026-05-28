@@ -1,5 +1,6 @@
-sourcePVC: "bazarr-config"
-destinationPVC: "temp-longhorn-pvc"
+# sourcePVC: "bazarr-config"
+sourcePVC: "temp-longhorn-pvc"
+destinationPVC: "bazarr-config-lh"
 
 namespace: "servarr"
 size: 2Gi
