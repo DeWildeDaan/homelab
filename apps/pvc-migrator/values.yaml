@@ -1,8 +1,8 @@
-sourcePVC: "temp-longhorn-pvc"
-destinationPVC: "paperless-postgres-data-lh"
+sourcePVC: "bazarr-config"
+destinationPVC: "temp-longhorn-pvc"
 
 namespace: "paperless-ngx"
-size: 10Gi
+size: 2Gi
 
 image: alpine:3.20
 
