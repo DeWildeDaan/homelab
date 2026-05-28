@@ -1,8 +1,7 @@
-sourcePVC: ""
-destinationPVC: ""
+sourcePVC: "homarr-database"
+destinationPVC: "homarr-database-lh"
 
-sourceNamespace: ""
-destinationNamespace: ""
+sourceNamespace: "homarr"
 
 image: alpine:3.20
 
