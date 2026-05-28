@@ -1,5 +1,5 @@
-sourcePVC: "jellyseerr-config"
-destinationPVC: "temp-jellyseerr-config"
+sourcePVC: "temp-jellyseerr-config"
+destinationPVC: "jellyseerr-config-lh"
 
 
 tempPVCName: "temp-jellyseerr-config"
