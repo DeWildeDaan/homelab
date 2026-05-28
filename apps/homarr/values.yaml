@@ -20,7 +20,8 @@ homarr:
   persistence:
     homarrDatabase:
       enabled: true
-      storageClassName: local-path
+      name: "homarr-database-lh"
+      storageClassName: longhorn
       accessMode: ReadWriteOnce
       size: 1Gi
 
