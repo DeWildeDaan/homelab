@@ -30,7 +30,7 @@ metadata:
   name: paperless-postgres
   namespace: {{ .Release.Namespace }}
 spec:
-  replicas: 0
+  replicas: 1
   strategy:
     type: Recreate
   selector:
