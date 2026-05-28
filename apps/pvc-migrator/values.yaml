@@ -1,0 +1,16 @@
+sourcePVC: ""
+destinationPVC: ""
+
+sourceNamespace: ""
+destinationNamespace: ""
+
+image: alpine:3.20
+
+command:
+  - /bin/sh
+  - -c
+  - |
+    apk add --no-cache rsync &&
+    echo "Starting migration..." &&
+    rsync -aHAXv /source/ /dest/ &&
+    echo "Done."

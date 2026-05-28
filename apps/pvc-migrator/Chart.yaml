@@ -1,0 +1,6 @@
+apiVersion: v2
+name: pvc-migrator
+description: Simple PVC to PVC migration job using rsync
+type: application
+version: 0.1.0
+appVersion: "1.0"

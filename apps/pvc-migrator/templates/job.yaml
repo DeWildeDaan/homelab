@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "pvc-migrator.fullname" . }}
+  namespace: {{ .Values.destinationNamespace }}
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+
+      containers:
+        - name: migrator
+          image: {{ .Values.image }}
+          command: {{ toYaml .Values.command | nindent 10 }}
+
+          volumeMounts:
+            - name: source
+              mountPath: /source
+            - name: dest
+              mountPath: /dest
+
+      volumes:
+        - name: source
+          persistentVolumeClaim:
+            claimName: {{ .Values.sourcePVC }}
+
+        - name: dest
+          persistentVolumeClaim:
+            claimName: {{ .Values.destinationPVC }}
