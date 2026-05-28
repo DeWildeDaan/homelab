@@ -364,7 +364,6 @@ bazarr:
 
   controllers:
     bazarr:
-      replicas: 0
       pod:
         nodeSelector:
           media: "true"
