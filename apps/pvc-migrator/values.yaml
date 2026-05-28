@@ -1,7 +1,8 @@
 sourcePVC: "homarr-database"
-destinationPVC: "homarr-database-lh"
+destinationPVC: "temp-longhorn-pvc"
 
-sourceNamespace: "homarr"
+namespace: "homarr"
+size: 1GB
 
 image: alpine:3.20
 
