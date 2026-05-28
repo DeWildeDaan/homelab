@@ -62,7 +62,6 @@ sonarr:
 
   controllers:
     sonarr:
-      replicas: 0
       pod:
         nodeSelector:
           media: "true"
@@ -111,7 +110,6 @@ radarr:
 
   controllers:
     radarr:
-      replicas: 0
       pod:
         nodeSelector:
           media: "true"
