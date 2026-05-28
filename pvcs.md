@@ -7,7 +7,7 @@
 | x servarr       | bazarr-config                   | Bound  | pvc-4b9f73b1-c312-40aa-87ef-8ba964bf3382 | 2Gi  | RWO         | local-path    |
 | x servarr       | jellyfin-config                 | Bound  | pvc-7d59cac2-262d-469f-a39f-5be6622703c9 | 5Gi | RWO         | local-path    |
 | x servarr       | jellyseerr-config               | Bound  | pvc-646216c9-3e40-4f30-b026-fb85e82d3472 | 2Gi  | RWO         | local-path    |
-| servarr       | maintainerr-config              | Bound  | pvc-eb06bc7e-21e4-4168-baa7-6412f1044ee0 | 2Gi  | RWO         | local-path    |
+| x servarr       | maintainerr-config              | Bound  | pvc-eb06bc7e-21e4-4168-baa7-6412f1044ee0 | 2Gi  | RWO         | local-path    |
 | servarr       | prowlarr-config                 | Bound  | pvc-40899fbb-cfbd-47f8-9fdf-a80bf8736469 | 2Gi  | RWO         | local-path    |
 | servarr       | qbittorrent-config              | Bound  | pvc-59fcc12a-9c57-4b36-bb00-6dd47e591d5f | 5Gi  | RWO         | local-path    |
 | servarr       | radarr-config                   | Bound  | pvc-69c9d2ee-e2c3-47e9-88fc-29ddf326556a | 5Gi  | RWO         | local-path    |

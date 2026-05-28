@@ -261,7 +261,6 @@ jellyseerr:
 
   controllers:
     jellyseerr:
-      replicas: 0
       pod:
         nodeSelector:
           media: "true"
@@ -418,7 +417,6 @@ maintainerr:
 
   controllers:
     maintainerr:
-      replicas: 0
       pod:
         nodeSelector:
           media: "true"
