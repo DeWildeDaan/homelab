@@ -1,9 +1,9 @@
-# sourcePVC: "bazarr-config"
-sourcePVC: "temp-longhorn-pvc"
-destinationPVC: "bazarr-config-lh"
+sourcePVC: "jellyfin-config"
+# sourcePVC: "temp-longhorn-pvc"
+destinationPVC: "temp-jellyfin-config"
 
 namespace: "servarr"
-size: 2Gi
+size: 5Gi
 
 image: alpine:3.20
 
