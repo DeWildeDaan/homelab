@@ -1,0 +1,15 @@
+ingress:
+  host: longhorn.home.daandewilde.be
+
+longhorn:
+  defaultSettings:
+    defaultReplicaCount: 3
+    storageMinimalAvailablePercentage: 10
+    nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+
+  persistence:
+    defaultClass: true
+    defaultClassReplicaCount: 3
+
+  ingress:
+    enabled: false
