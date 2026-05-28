@@ -1,5 +1,5 @@
-sourcePVC: "prowlarr-config"
-destinationPVC: "temp-prowlarr-config"
+sourcePVC: "temp-prowlarr-config"
+destinationPVC: "prowlarr-config-lh"
 
 
 tempPVCName: "temp-prowlarr-config"
