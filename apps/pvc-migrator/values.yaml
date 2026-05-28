@@ -1,5 +1,5 @@
-sourcePVC: "qbittorrent-config"
-destinationPVC: "temp-qbittorrent-config"
+sourcePVC: "temp-qbittorrent-config"
+destinationPVC: "qbittorrent-config-lh"
 
 
 tempPVCName: "temp-qbittorrent-config"
