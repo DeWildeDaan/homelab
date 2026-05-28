@@ -159,7 +159,6 @@ flaresolverr:
 
   controllers:
     flaresolverr:
-      replicas: 0
       pod:
         nodeSelector:
           media: "true"
@@ -189,7 +188,6 @@ qbittorrent:
 
   controllers:
     qbittorrent:
-      replicas: 0
       pod:
         nodeSelector:
           media: "true"
