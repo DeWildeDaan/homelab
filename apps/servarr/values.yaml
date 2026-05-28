@@ -23,7 +23,6 @@ prowlarr:
 
   controllers:
     prowlarr:
-      replicas: 0
       pod:
         nodeSelector:
           media: "true"
