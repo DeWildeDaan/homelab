@@ -1,8 +1,8 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "pvc-migrator.fullname" . }}
-  namespace: {{ .Values.destinationNamespace }}
+  name: Migrator
+  namespace: {{ .Values.namespace }}
 spec:
   backoffLimit: 0
   template:
