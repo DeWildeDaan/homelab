@@ -391,7 +391,7 @@ bazarr:
       enabled: true
       type: persistentVolumeClaim
       storageClass: longhorn
-      nameOverride: bazarr-config-lh
+      nameOverride: config-lh
       accessMode: ReadWriteOnce
       size: 2Gi
       advancedMounts:
