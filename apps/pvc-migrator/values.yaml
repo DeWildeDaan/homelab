@@ -1,8 +1,8 @@
-sourcePVC: "temp-radarr-config"
-destinationPVC: "radarr-config-lh"
+sourcePVC: "sonarr-config"
+destinationPVC: "temp-sonarr-config"
 
 
-tempPVCName: "temp-radarr-config"
+tempPVCName: "temp-sonarr-config"
 
 namespace: "servarr"
 size: 5Gi
