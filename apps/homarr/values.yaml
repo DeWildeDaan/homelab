@@ -22,7 +22,7 @@ homarr:
       name: "homarr-database-lh"
       storageClassName: longhorn
       accessMode: ReadWriteOnce
-      size: 1Gi
+      size: 2Gi
 
   # DB encryption key — sealed in templates/db-encryption-sealedsecret.yaml.
   # `existingSecret` here matches the SealedSecret's metadata.name; the chart
