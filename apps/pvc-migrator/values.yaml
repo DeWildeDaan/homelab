@@ -2,6 +2,9 @@ sourcePVC: "jellyfin-config"
 # sourcePVC: "temp-longhorn-pvc"
 destinationPVC: "temp-jellyfin-config"
 
+
+tempPVCName: "temp-jellyfin-config"
+
 namespace: "servarr"
 size: 5Gi
 
