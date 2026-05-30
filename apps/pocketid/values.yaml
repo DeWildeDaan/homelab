@@ -1,4 +1,6 @@
 image:
+  repository: ghcr.io/pocket-id/pocket-id
+  pullPolicy: IfNotPresent
   tag: "v2.7.0"
 
 existingSecret: pocket-id-secret
