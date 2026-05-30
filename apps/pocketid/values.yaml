@@ -1,5 +1,5 @@
 pocket-id:
-  host: "https://auth.home.daandewilde.be"
+  host: "auth.home.daandewilde.be"
   database:
     provider: sqlite
   timeZone: "Europe/Brussels"
