@@ -11,6 +11,6 @@ spec:
     - match: Host(`auth.home.daandewilde.be`)
       kind: Rule
       services:
-        - name: pocket-id
+        - name: pocketid-pocket-id
           port: 80
   tls: {}
