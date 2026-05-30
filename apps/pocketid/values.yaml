@@ -6,7 +6,7 @@ image:
 existingSecret: pocket-id-secret
 config:
   PUBLIC_APP_URL: "https://auth.home.daandewilde.be"
-  TELEMETRY_DISABLED: "true"
+  
 
 serviceAccount:
   create: true

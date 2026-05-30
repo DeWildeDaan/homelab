@@ -5,6 +5,7 @@ metadata:
   name: {{ include "pocket-id.fullname" . }}-config
 data:
   TRUST_PROXY: "true"
+  TELEMETRY_DISABLED: "true"
   {{- range $key := keys .Values.config }}
   {{ $key | snakecase | upper }}: {{ get $.Values.config $key }}
   {{- end }}
