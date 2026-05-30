@@ -1,5 +1,10 @@
 apiVersion: v2
 name: pocket-id
-description: Pocket ID deployment with Traefik IngressRoute
+description: Pocket ID deployment (GitOps wrapper)
 type: application
-version: 1.0.0
+version: 0.1.0
+
+dependencies:
+  - name: pocket-id
+    version: "2.1.1"
+    repository: "https://anza-labs.github.io/helm-charts"

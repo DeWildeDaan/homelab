@@ -1,33 +1,35 @@
-image:
-  repository: ghcr.io/pocket-id/pocket-id
-  pullPolicy: IfNotPresent
-  tag: "v2.7.0"
+pocket-id:
+  encryptionKey: "CHANGE_ME_BASE64_32B"   # REQUIRED
+  database:
+    provider: sqlite
+  timeZone: "Europe/Brussels"
+  trustProxy: true
 
-existingSecret: pocket-id-secret
-config:
-  PUBLIC_APP_URL: "https://auth.home.daandewilde.be"
-  
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.4.36
 
-serviceAccount:
-  create: true
-  automount: true
+  ingress:
+    enabled: false
 
-livenessProbe:
-  initialDelaySeconds: 60
-  httpGet:
-    path: /health
-    port: http
-readinessProbe:
-  initialDelaySeconds: 60
-  httpGet:
-    path: /health
-    port: http
+  persistence:
+    data:
+      enabled: true
+      size: 5Gi
+      storageClass: "longhorn"
 
-persistence:
-  enabled: true
-  storageClass: "longhorn"
-  accessMode: ReadWriteOnce
-  size: 5Gi
-
-enterprise:
-  enabled: false
+  config:
+    analyticsDisabled: true
+    ui:
+      useDefaults: true
+      settings:
+        app:
+          appName: "Pocket ID"
+          allowUserSignups: "disabled"
+          sessionDuration: 120
+    core:
+      logLevel: info
+      logJson: true
+      disableRateLimiting: false
+      auditLogRetentionDays: 90
+      baseURL: "https://auth.home.daandewilde.be"
