@@ -1,5 +1,5 @@
 pocket-id:
-  encryptionKey: "CHANGE_ME_BASE64_32B"   # REQUIRED
+  host: "https://auth.home.daandewilde.be"
   database:
     provider: sqlite
   timeZone: "Europe/Brussels"
@@ -24,16 +24,7 @@ pocket-id:
 
   config:
     analyticsDisabled: true
-    ui:
-      useDefaults: true
-      settings:
-        app:
-          appName: "Pocket ID"
-          allowUserSignups: "disabled"
-          sessionDuration: 120
+
     core:
-      logLevel: info
       logJson: true
-      disableRateLimiting: false
-      auditLogRetentionDays: 90
-      baseURL: "https://auth.home.daandewilde.be"
+      internalAppUrl: "https://192.168.4.36"
