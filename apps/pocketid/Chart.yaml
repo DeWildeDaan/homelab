@@ -1,0 +1,10 @@
+apiVersion: v2
+name: pocket-id
+description: Pocket ID deployment with Traefik IngressRoute
+type: application
+version: 1.0.0
+ 
+dependencies:
+  - name: pocket-id
+    version: "*"
+    repository: oci://ghcr.io/hobbit44/pocket-id-helm

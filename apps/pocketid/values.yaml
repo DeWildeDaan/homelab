@@ -1,0 +1,15 @@
+pocket-id:
+  config:
+    PUBLIC_APP_URL: "https://auth.home.daandewilde.be"
+ 
+  persistence:
+    enabled: true
+    size: 8Gi
+ 
+  service:
+    type: ClusterIP
+    port: 80
+ 
+  ingress:
+    enabled: false
+ 
