@@ -6,5 +6,5 @@ version: 1.0.0
  
 dependencies:
   - name: pocket-id
-    version: "0.0.0"
-    repository: oci://ghcr.io/matslarson/pocket-id-helm/pocket-id
+    version: "2.4.0"
+    repository: oci://ghcr.io/hobbit44/pocket-id-helm
