@@ -27,4 +27,4 @@ pocket-id:
 
     core:
       logJson: true
-      internalAppUrl: "https://192.168.4.36"
+      internalAppUrl: "https://auth.home.daandewilde.be:80"
