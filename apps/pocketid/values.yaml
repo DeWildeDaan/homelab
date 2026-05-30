@@ -1,20 +1,12 @@
-pocket-id:
-  image:
-    tag: "v2.7.0"
+image:
+  tag: "v2.7.0"
 
-  existingSecret: pocket-id-secret
-  config:
-    PUBLIC_APP_URL: "https://auth.home.daandewilde.be"
+existingSecret: pocket-id-secret
+config:
+  PUBLIC_APP_URL: "https://auth.home.daandewilde.be"
+  TELEMETRY_DISABLED: "true"
  
-  persistence:
-    enabled: true
-    storageClass: "longhorn"
-    size: 5Gi
- 
-  service:
-    type: ClusterIP
-    port: 80
- 
-  ingress:
-    enabled: false
- 
+persistence:
+  enabled: true
+  storageClass: "longhorn"
+  size: 5Gi
