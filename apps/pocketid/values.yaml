@@ -1,7 +1,8 @@
 pocket-id:
   image:
-    tag: "v2.7"
+    tag: "v2.7.0"
 
+  existingSecret: pocket-id-secret
   config:
     PUBLIC_APP_URL: "https://auth.home.daandewilde.be"
  
