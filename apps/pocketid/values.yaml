@@ -5,8 +5,27 @@ existingSecret: pocket-id-secret
 config:
   PUBLIC_APP_URL: "https://auth.home.daandewilde.be"
   TELEMETRY_DISABLED: "true"
- 
+
+serviceAccount:
+  create: true
+  automount: true
+
+livenessProbe:
+  initialDelaySeconds: 60
+  httpGet:
+    path: /health
+    port: http
+readinessProbe:
+  initialDelaySeconds: 60
+  httpGet:
+    path: /health
+    port: http
+
 persistence:
   enabled: true
   storageClass: "longhorn"
+  accessMode: ReadWriteOnce
   size: 5Gi
+
+enterprise:
+  enabled: false
