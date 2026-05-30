@@ -6,6 +6,7 @@ pocket-id:
   trustProxy: true
 
   secret:
+    create: false
     name: "pocket-id-secret"
 
   service:
