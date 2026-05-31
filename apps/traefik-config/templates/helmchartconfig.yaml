@@ -25,9 +25,11 @@ spec:
     providers:
       kubernetesCRD:
         allowCrossNamespace: true
-    persistence:
-      enabled: true
-      name: plugins-storage
-      storageClass: longhorn
-      path: /plugins-storage
-      size: 128Mi
+    deployment:
+      additionalVolumes:
+        - name: plugins-storage
+          persistentVolumeClaim:
+            claimName: traefik-plugins-storage
+    additionalVolumeMounts:
+      - name: plugins-storage
+        mountPath: /plugins-storage
