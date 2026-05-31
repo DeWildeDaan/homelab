@@ -1,21 +1,26 @@
-cloudflare-tunnel:
-  cloudflare:
-    account: "5c7c843721216f7bad00bbd8a4520982"
-    tunnelName: "k8s-tunnel"
-    tunnelId: "597f628c-a27f-4b37-a41a-ef1a06303977"
-    secret: ""
-    secretName: tunnel-credentials
+image:
+  repository: cloudflare/cloudflared
+  pullPolicy: IfNotPresent
 
-    ingress:
-      - hostname: auth.home.daandewilde.be
-        service: http://traefik.kube-system.svc.cluster.local:80
-      - hostname: immich.home.daandewilde.be
-        service: http://traefik.kube-system.svc.cluster.local:80
-      - service: http_status:404
+replicaCount: 2
 
-  resources:
-    requests:
-      cpu: 10m
-      memory: 64Mi
-    limits:
-      memory: 128Mi
+# Security items common to everything in the pod.  Here we require that it
+# does not run as the user defined in the image, literally named "nonroot".
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+
+# Security items for one container. We lock it down.
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  limits:
+    memory: 128Mi

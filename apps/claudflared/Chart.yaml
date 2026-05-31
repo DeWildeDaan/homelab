@@ -3,8 +3,3 @@ name: cloudflared
 description: Cloudflare Tunnel — wrapper chart
 type: application
 version: 0.1.0
-
-dependencies:
-  - name: cloudflare-tunnel
-    version: "0.3.2"
-    repository: https://cloudflare.github.io/helm-charts
