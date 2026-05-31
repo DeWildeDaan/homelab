@@ -1,0 +1,37 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: pocket-id-admins
+  namespace: kube-system
+spec:
+  plugin:
+    traefik-oidc-auth:
+      Secret: "urn:k8s:secret:oidc-secret:pluginSecret"
+      Provider:
+        Url: "https://auth.home.daandewilde.be/"
+        ClientId: "80d14e91-a0cb-49b4-903c-75fe53bab04a"
+        ClientSecret: "urn:k8s:secret:oidc-secret:clientSecret"
+      Scopes: ["openid", "profile", "email", "groups"]
+      Authorization:
+        AssertClaims:
+          - Name: groups
+            AnyOf: ["admin"]
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: pocket-id-users
+  namespace: kube-system
+spec:
+  plugin:
+    traefik-oidc-auth:
+      Secret: "urn:k8s:secret:oidc-secret:pluginSecret"
+      Provider:
+        Url: "https://auth.home.daandewilde.be/"
+        ClientId: "80d14e91-a0cb-49b4-903c-75fe53bab04a"
+        ClientSecret: "urn:k8s:secret:oidc-secret:clientSecret"
+      Scopes: ["openid", "profile", "email", "groups"]
+      Authorization:
+        AssertClaims:
+          - Name: groups
+            AnyOf: ["admin", "non_admin"]
