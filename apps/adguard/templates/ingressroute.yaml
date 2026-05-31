@@ -9,6 +9,9 @@ spec:
   routes:
     - match: Host(`adguard.home.daandewilde.be`)
       kind: Rule
+      middlewares:
+        - name: pocket-id-admins
+          namespace: kube-system
       services:
         - name: adguard-web
           port: 80

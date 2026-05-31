@@ -14,6 +14,18 @@ so the service name matches the app name 1:1.
   "bazarr"      6767
   "maintainerr" 6246
 }}
+
+{{- $middlewares := dict
+  "sonarr"      "pocket-id-admins"
+  "radarr"      "pocket-id-admins"
+  "prowlarr"    "pocket-id-admins"
+  "qbittorrent" "pocket-id-admins"
+  "jellyseerr"  ""
+  "jellyfin"    ""
+  "bazarr"      "pocket-id-admins"
+  "maintainerr" "pocket-id-admins"
+}}
+
 {{- range $name, $port := $apps }}
 ---
 apiVersion: traefik.io/v1alpha1
@@ -27,6 +39,11 @@ spec:
   routes:
     - match: Host(`{{ $name }}.{{ $.Values.ingress.host }}`)
       kind: Rule
+      {{- with get $middlewares $name }}
+      middlewares:
+        - name: {{ . }}
+          namespace: kube-system
+      {{- end }}
       services:
         - name: {{ $name }}
           port: {{ $port }}

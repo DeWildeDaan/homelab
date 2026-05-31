@@ -12,6 +12,4 @@ spec:
       services:
         - name: argocd-server
           port: 80
-  # No explicit tls: section — Traefik serves the default wildcard cert
-  # configured by apps/traefik-config/ (wildcard-home-daandewilde-be-tls).
   tls: {}
