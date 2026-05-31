@@ -1,0 +1,23 @@
+cloudflared:
+  tunnel:
+    id: "597f628c-a27f-4b37-a41a-ef1a06303977"
+    name: k8s-tunnel
+    token:
+      existingSecret: tunnel-credentials
+      existingSecretKey: token
+
+  ingress:
+    - hostname: auth.home.daandewilde.be
+      service: http://traefik.kube-system.svc.cluster.local:80
+    - hostname: immich.home.daandewilde.be
+      service: http://traefik.kube-system.svc.cluster.local:80
+    - service: http_status:404
+
+  replicaCount: 2
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 128Mi

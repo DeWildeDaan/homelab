@@ -1,0 +1,10 @@
+apiVersion: v2
+name: cloudflared
+description: Cloudflare Tunnel — wrapper chart
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: cloudflared
+    version: "2024.6.1"
+    repository: https://charts.cloudflare.com
