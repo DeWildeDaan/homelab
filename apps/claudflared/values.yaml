@@ -18,6 +18,9 @@ securityContext:
     - ALL
   readOnlyRootFilesystem: true
 
+serviceAccount:
+  annotations: {}
+
 resources:
   requests:
     cpu: 10m
