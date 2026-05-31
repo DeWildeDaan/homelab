@@ -25,3 +25,9 @@ spec:
     providers:
       kubernetesCRD:
         allowCrossNamespace: true
+    persistence:
+      enabled: true
+      name: plugins-storage
+      storageClass: longhorn
+      path: /plugins-storage
+      size: 128Mi
