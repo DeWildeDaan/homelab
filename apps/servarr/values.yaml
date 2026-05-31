@@ -268,7 +268,7 @@ jellyseerr:
         app:
           image:
             repository: docker.io/fallenbagel/jellyseerr
-            tag: "sha-42eec24"
+            tag: "preview-OIDC"
           env:
             TZ: *tz
             LOG_LEVEL: info
