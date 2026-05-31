@@ -92,6 +92,13 @@ paperless-ngx:
           name: paperless-postgres
           key: postgres-password
 
+    PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
+    PAPERLESS_SOCIALACCOUNT_PROVIDERS:
+      valueFrom:
+        secretKeyRef:
+          name: paperless-oidc-config
+          key: config
+
   # All four paperless volumes on the Synology over NFS (RWX).
   persistence:
     data:
