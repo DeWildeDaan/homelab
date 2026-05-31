@@ -33,3 +33,7 @@ spec:
     additionalVolumeMounts:
       - name: plugins-storage
         mountPath: /plugins-storage
+    securityContext:
+      readOnlyRootFilesystem: false
+    podSecurityContext:
+      fsGroup: 65532
