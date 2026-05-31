@@ -63,13 +63,6 @@ paperless-ngx:
     PAPERLESS_TIKA_ENABLED: "1"
     PAPERLESS_TIKA_ENDPOINT: http://paperless-tika:9998
     PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://paperless-gotenberg:3000
-    # First-boot superuser — paperless skips creation if it already exists.
-    PAPERLESS_ADMIN_USER: admin
-    PAPERLESS_ADMIN_PASSWORD:
-      valueFrom:
-        secretKeyRef:
-          name: paperless-secrets
-          key: admin-password
     # Celery broker → in-repo redis (templates/redis.yaml). The bjw-s common
     # chart sorts env vars alphabetically, so the `A_` prefix guarantees
     # REDIS_PASSWORD is materialised before $(...) expansion in PAPERLESS_REDIS.
@@ -92,6 +85,9 @@ paperless-ngx:
           name: paperless-postgres
           key: postgres-password
 
+  # OIDC config
+    PAPERLESS_REDIRECT_LOGIN_TO_SSO: true
+    PAPERLESS_DISABLE_REGULAR_LOGIN: true
     PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
     PAPERLESS_SOCIALACCOUNT_PROVIDERS:
       valueFrom:
