@@ -3,6 +3,7 @@ cloudflare-tunnel:
     account: "5c7c843721216f7bad00bbd8a4520982"
     tunnelName: "k8s-tunnel"
     tunnelId: "597f628c-a27f-4b37-a41a-ef1a06303977"
+    secret: ""
     secretName: tunnel-credentials
 
     ingress:
