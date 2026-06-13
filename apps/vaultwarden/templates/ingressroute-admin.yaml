@@ -9,9 +9,6 @@ spec:
   routes:
     - match: Host(`vaultwarden.home.daandewilde.be`) && PathPrefix(`/admin`)
       kind: Rule
-      middlewares:
-        - name: pocket-id-admins
-          namespace: kube-system
       services:
         - name: vaultwarden
           port: 80
