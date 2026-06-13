@@ -1,0 +1,11 @@
+apiVersion: v2
+name: vaultwarden
+description: Umbrella chart for Vaultwarden password manager
+type: application
+version: 1.0.0
+appVersion: "1.36.0"
+
+dependencies:
+  - name: vaultwarden
+    version: "0.38.0"
+    repository: "https://guerzon.github.io/vaultwarden"

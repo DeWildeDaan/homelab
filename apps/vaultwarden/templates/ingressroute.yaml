@@ -1,0 +1,21 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: vaultwarden
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`vaultwarden.home.daandewilde.be`)
+      kind: Rule
+      services:
+        - name: vaultwarden
+          port: 80
+    # WebSocket endpoint for real-time notifications (browser extensions)
+    - match: Host(`vaultwarden.home.daandewilde.be`) && PathPrefix(`/notifications/hub`)
+      kind: Rule
+      services:
+        - name: vaultwarden
+          port: 3012
+  tls: {}

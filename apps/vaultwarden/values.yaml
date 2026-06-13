@@ -1,0 +1,66 @@
+vaultwarden:
+  # -- Domain used in invitation emails and WebAuthn
+  domain: "https://vaultwarden.home.daandewilde.be"
+
+  image:
+    tag: "1.36.0-alpine"
+
+  # -- Disable open registration; users must be invited or use SSO
+  signupsAllowed: false
+  invitationsAllowed: true
+  invitationOrgName: "Home Lab"
+
+  # -- Admin token is disabled here; admin panel is protected by Traefik middleware
+  # Set this to a bcrypt hash of a strong token. Generate with:
+  # echo -n "YOUR_ADMIN_TOKEN" | argon2 "$(openssl rand -base64 32)" -id -t 3 -m 16 -p 4 -l 32 -e
+  # Or use the ADMIN_TOKEN env var with a plain token prefixed by `$` for testing only.
+  adminToken:
+    existingSecret: "vaultwarden-admin-secret"
+    existingSecretKey: "admin-token"
+
+  # -- OIDC / SSO Configuration
+  # Requires vaultwarden/server image with SSO support (standard since 1.32.0+)
+  sso:
+    enabled: true
+    authority: "https://auth.home.daandewilde.be"
+    existingSecret: "vaultwarden-oidc-secret"
+    clientId:
+      existingSecretKey: "client-id"
+    clientSecret:
+      existingSecretKey: "client-secret"
+    enforceSSO: false          # Set true once SSO is validated and working
+    signupsMatchEmail: true    # Let SSO users claim pre-existing accounts by email
+    ignoreEmailVerification: false
+
+  # -- Storage: Longhorn for /data (SQLite DB + attachments)
+  storage:
+    data:
+      name: vaultwarden-data
+      size: 10Gi
+      class: longhorn
+      path: /data
+
+  # -- Disable the built-in ingress; we use Traefik IngressRoute manually
+  ingress:
+    enabled: false
+
+  # -- Service
+  service:
+    type: ClusterIP
+    port: 80
+
+  # -- Websocket notifications (used by browser extensions)
+  websocket:
+    enabled: true
+
+  # -- Security context
+  podSecurityContext:
+    fsGroup: 1000
+
+  securityContext:
+    runAsUser: 1000
+    runAsNonRoot: true
+    readOnlyRootFilesystem: false  # Vaultwarden writes to /data
+
+  # -- Timezone
+  timezone: "Europe/Brussels"

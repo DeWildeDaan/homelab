@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: vaultwarden-admin
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`vaultwarden.home.daandewilde.be`) && PathPrefix(`/admin`)
+      kind: Rule
+      middlewares:
+        - name: pocket-id-admins
+          namespace: kube-system
+      services:
+        - name: vaultwarden
+          port: 80
+  tls: {}
