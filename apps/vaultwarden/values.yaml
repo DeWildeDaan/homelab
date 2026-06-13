@@ -39,6 +39,7 @@ vaultwarden:
       size: 10Gi
       class: longhorn
       path: /data
+      accessMode: "ReadWriteOnce"
 
   # -- Disable the built-in ingress; we use Traefik IngressRoute manually
   ingress:
