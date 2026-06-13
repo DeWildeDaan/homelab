@@ -23,10 +23,6 @@ prowlarr:
 
   controllers:
     prowlarr:
-      pod:
-        nodeSelector:
-          media: "true"
-
       containers:
         app:
           image:
@@ -62,10 +58,6 @@ sonarr:
 
   controllers:
     sonarr:
-      pod:
-        nodeSelector:
-          media: "true"
-
       containers:
         app:
           image:
@@ -110,10 +102,6 @@ radarr:
 
   controllers:
     radarr:
-      pod:
-        nodeSelector:
-          media: "true"
-
       containers:
         app:
           image:
@@ -159,10 +147,6 @@ flaresolverr:
 
   controllers:
     flaresolverr:
-      pod:
-        nodeSelector:
-          media: "true"
-
       containers:
         app:
           image:
@@ -188,10 +172,6 @@ qbittorrent:
 
   controllers:
     qbittorrent:
-      pod:
-        nodeSelector:
-          media: "true"
-
       containers:
         gluetun:
           image:
@@ -260,10 +240,6 @@ jellyseerr:
 
   controllers:
     jellyseerr:
-      pod:
-        nodeSelector:
-          media: "true"
-
       containers:
         app:
           image:
@@ -298,10 +274,6 @@ jellyfin:
 
   controllers:
     jellyfin:
-      pod:
-        nodeSelector:
-          media: "true"
-
       containers:
         app:
           image:
@@ -363,10 +335,6 @@ bazarr:
 
   controllers:
     bazarr:
-      pod:
-        nodeSelector:
-          media: "true"
-
       containers:
         app:
           image:
@@ -415,10 +383,6 @@ maintainerr:
 
   controllers:
     maintainerr:
-      pod:
-        nodeSelector:
-          media: "true"
-
       containers:
         app:
           image:
