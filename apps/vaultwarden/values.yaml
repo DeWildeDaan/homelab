@@ -31,6 +31,7 @@ vaultwarden:
     enforceSSO: true          # Set true once SSO is validated and working
     signupsMatchEmail: true    # Let SSO users claim pre-existing accounts by email
     ignoreEmailVerification: false
+    authOnlyNotSession: false 
 
   # -- Storage: Longhorn for /data (SQLite DB + attachments)
   storage:
