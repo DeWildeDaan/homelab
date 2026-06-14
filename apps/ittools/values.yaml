@@ -14,15 +14,15 @@ it-tools:
     enabled: false
   
   securityContext:
-  runAsUser: 0
-  runAsNonRoot: false
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-    add:
-      - CHOWN
-      - FOWNER
+    runAsUser: 0
+    runAsNonRoot: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+      add:
+        - CHOWN
+        - FOWNER
 
   resources:
     requests:
