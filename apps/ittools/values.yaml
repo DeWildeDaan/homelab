@@ -11,7 +11,12 @@ it-tools:
     port: 80
 
   ingress:
-    enabled: false  # We manage ingress via Traefik IngressRoute
+    enabled: false
+  
+  securityContext:
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+    runAsUser: 0
 
   resources:
     requests:
