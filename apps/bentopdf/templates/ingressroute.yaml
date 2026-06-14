@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`bentopdf.home.daandewilde.be`)
+    - match: Host(`pdf.home.daandewilde.be`)
       kind: Rule
       middlewares:
         - name: pocket-id-users
