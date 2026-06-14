@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: bentopdf
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`bentopdf.home.daandewilde.be`)
+      kind: Rule
+      middlewares:
+        - name: pocket-id-users
+          namespace: traefik
+      services:
+        - name: bentopdf
+          port: 8080
+  tls: {}

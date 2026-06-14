@@ -1,0 +1,6 @@
+dependencies:
+- name: bentopdf
+  repository: https://kriegalex.github.io/k8s-charts/
+  version: 1.1.0
+digest: sha256:ec2f7e942472f59c87f19a988a246581725c6d7118c1b4c51b990535be62b7bb
+generated: "2026-06-14T12:12:21.338021962+02:00"

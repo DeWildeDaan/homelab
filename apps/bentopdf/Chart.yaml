@@ -1,0 +1,11 @@
+apiVersion: v2
+name: bentopdf
+description: Umbrella chart for BentoPDF
+type: application
+version: 1.0.0
+appVersion: "2.8.2"
+
+dependencies:
+  - name: bentopdf
+    version: "1.1.0"
+    repository: "https://kriegalex.github.io/k8s-charts/"
