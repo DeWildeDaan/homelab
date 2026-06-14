@@ -2,9 +2,9 @@ bentopdf:
   replicaCount: 1
 
   image:
-    repository: bentopdfteam/bentopdf
-    tag: "2.8.2"
-    pullPolicy: IfNotPresent
+    repository: ghcr.io/alam00000/bentopdf-simple
+    tag: "latest"
+    pullPolicy: Always
 
   service:
     type: ClusterIP
