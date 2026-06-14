@@ -11,7 +11,7 @@ spec:
       kind: Rule
       middlewares:
         - name: pocket-id-users
-          namespace: traefik
+          namespace: kube-system
       services:
         - name: bentopdf
           port: 8080
