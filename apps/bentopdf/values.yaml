@@ -17,6 +17,16 @@ bentopdf:
   persistence:
     enabled: false
 
-  config:
-    logLevel: WARN
-    workers: 1
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
