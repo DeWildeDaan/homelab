@@ -1,0 +1,6 @@
+dependencies:
+- name: it-tools
+  repository: https://charts.jeffresc.dev
+  version: 0.2.0
+digest: sha256:d15ae647e796e470777ca646e9875acfa7650d7e31c3a245bba057e60862ecea
+generated: "2026-06-14T12:34:40.082482895+02:00"
