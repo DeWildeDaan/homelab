@@ -3,8 +3,8 @@ it-tools:
 
   image:
     repository: ghcr.io/corentinth/it-tools
-    tag: "2026.1.4"
-    pullPolicy: IfNotPresent
+    tag: "latest"
+    pullPolicy: Always
 
   service:
     type: ClusterIP
