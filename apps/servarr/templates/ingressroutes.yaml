@@ -19,7 +19,7 @@ so the service name matches the app name 1:1.
   "sonarr"      "pocket-id-admins"
   "radarr"      "pocket-id-admins"
   "prowlarr"    "pocket-id-admins"
-  "qbittorrent" "pocket-id-admins"
+  "qbittorrent" ""
   "jellyseerr"  ""
   "jellyfin"    ""
   "bazarr"      "pocket-id-admins"
