@@ -201,6 +201,8 @@ qbittorrent:
             PGID: *pgid
             TZ: *tz
             WEBUI_PORT: "8080"
+            CUSTOM_INIT: |
+              until wget -qO- http://localhost:9999 2>/dev/null | grep -q 'healthy'; do sleep 2; done
 
   service:
     app:
