@@ -1,0 +1,49 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":timezone(Europe/Brussels)"
+  ],
+  "schedule": ["* 6-10 * * 1"],
+  "prHourlyLimit": 4,
+  "prConcurrentLimit": 10,
+  "labels": ["dependencies"],
+  "helm-values": {
+    "fileMatch": ["apps/.+/values\\.yaml$"]
+  },
+  "helmv3": {
+    "fileMatch": ["apps/.+/Chart\\.yaml$"]
+  },
+  "packageRules": [
+    {
+      "description": "Group all updates for a single app into one PR",
+      "matchFileNames": ["apps/**"],
+      "additionalBranchPrefix": "{{parentDir}}-",
+      "groupName": "{{parentDir}}",
+      "commitMessageTopic": "{{parentDir}}"
+    },
+    {
+      "description": "Pin floating/preview tags — bump only when the same tag string points at a new digest",
+      "matchPackageNames": [
+        "lscr.io/linuxserver/prowlarr",
+        "lscr.io/linuxserver/radarr",
+        "docker.io/21hsmw/flaresolverr",
+        "docker.io/fallenbagel/jellyseerr"
+      ],
+      "pinDigests": true,
+      "enabled": false
+    },
+    {
+      "description": "Auto-merge patch bumps for stable images/charts after CI passes",
+      "matchUpdateTypes": ["patch", "digest"],
+      "matchCurrentVersion": "!/-(nightly|preview|beta|rc|alpha)/",
+      "automerge": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "schedule": ["at any time"]
+  }
+}
