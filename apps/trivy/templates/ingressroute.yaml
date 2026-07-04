@@ -14,5 +14,5 @@ spec:
           port: 8900
       middlewares:
         - name: pocket-id-admins
-          namespace: {{ .Values.middlewareNamespace | default "traefik" }}
+          namespace: kube-system
   tls: {}
