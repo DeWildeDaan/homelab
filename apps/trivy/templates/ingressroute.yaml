@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: trivy
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`trivy.home.daandewilde.be`)
+      kind: Rule
+      services:
+        - name: {{ .Release.Name }}-dashboard
+          port: 8900
+      middlewares:
+        - name: pocket-id-admins
+          namespace: {{ .Values.middlewareNamespace | default "traefik" }}
+  tls: {}

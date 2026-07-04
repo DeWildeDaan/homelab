@@ -1,0 +1,46 @@
+# Namespace where the pocket-id-admins / pocket-id-users Traefik middlewares
+# live. Adjust to match your cluster (commonly "traefik" or "kube-system").
+middlewareNamespace: traefik
+
+# =========================================================================
+# trivy-operator (aquasecurity/trivy-operator)
+# Continuously scans the cluster (Standalone mode, default Trivy DB pulled
+# from GitHub). Produces VulnerabilityReport / ConfigAuditReport / etc CRDs.
+# No UI, no ingress, no persistent storage required.
+# Defaults (resources, Standalone mode, targetNamespaces: "" = all
+# namespaces except kube-system and its own namespace) are already sane
+# for a homelab, so only left as-is / documented here.
+# =========================================================================
+trivy-operator:
+  trivy:
+    ignoreUnfixed: true   # only report vulnerabilities that actually have a fix available - keeps noise down
+
+# =========================================================================
+# dashboard (raoulx24/trivy-operator-dashboard)
+# Read-only web UI that reads the CRDs created by trivy-operator via the
+# in-cluster ServiceAccount (useDefaultContext: true, default). No OIDC
+# support upstream -> protected via Traefik middleware instead (see
+# IngressRoute). Ingress disabled here because we expose it through our
+# own Traefik IngressRoute, not a Kubernetes Ingress object.
+# =========================================================================
+dashboard:
+  ingress:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 384Mi
+    limits:
+      cpu: 500m
+      memory: 384Mi
+
+  # History/retention feature ships its own Valkey (Redis-compatible) sidecar
+  # with its own PVC for the report-history cache. This is metadata/cache-type
+  # I/O, not bulk storage, so it's a good Longhorn candidate rather than nfs-nas.
+  history:
+    distributedCache:
+      sidecar:
+        pvc:
+          storageClassName: longhorn
+          size: 2Gi
