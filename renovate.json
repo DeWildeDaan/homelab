@@ -6,7 +6,6 @@
     ":semanticCommits",
     ":timezone(Europe/Brussels)"
   ],
-  "schedule": ["* 6-10 * * 1"],
   "prHourlyLimit": 4,
   "prConcurrentLimit": 10,
   "labels": ["dependencies"],
