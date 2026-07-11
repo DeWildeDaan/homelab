@@ -1,6 +1,0 @@
-dependencies:
-- name: paperless-ngx
-  repository: https://charts.gabe565.com
-  version: 0.24.1
-digest: sha256:69f96cb31733b850043e19bdb23282164e6af9cdcf3d56c0a2048c3912dd9c3f
-generated: "2026-05-23T11:17:21.307092681+02:00"
