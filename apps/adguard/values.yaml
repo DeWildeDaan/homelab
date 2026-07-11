@@ -5,7 +5,7 @@ app-template:
         app:
           image:
             repository: adguard/adguardhome
-            tag: v0.107.55
+            tag: v0.107.77
           env:
             TZ: Europe/Brussels
           # Default app-template probes hit the first container port; AdGuard
