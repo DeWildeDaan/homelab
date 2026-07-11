@@ -1,6 +1,6 @@
 # Knobs for the in-chart Postgres (templates/postgres.yaml).
 postgres:
-  image: ghcr.io/immich-app/postgres:16-vectorchord0.4.3-pgvectors0.2.0
+  image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
   database: immich
   username: postgres
   # Password comes from the SealedSecret in templates/postgres-password-sealedsecret.yaml
