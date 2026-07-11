@@ -51,6 +51,37 @@ maximal sophistication. Where the original design doc reached for heavier tools
 (OpenTofu, Calico, ingress-nginx, kube-vip), the built system deliberately keeps
 the batteries k3s already ships and layers the rest through GitOps.
 
+```mermaid
+flowchart TB
+    subgraph LAN["Home LAN — 192.168.4.0/24"]
+        user([Client / VPN])
+        adguard["AdGuard Home<br/>DNS · 192.168.4.31"]
+        nas[("Synology NAS<br/>NFS share")]
+
+        subgraph cluster["k3s cluster (HA · embedded etcd)"]
+            direction TB
+            n1["k3s-c1<br/>192.168.4.21"]
+            n2["k3s-c2<br/>192.168.4.22"]
+            n3["k3s-c3<br/>192.168.4.23"]
+            metallb["MetalLB (L2)<br/>VIP 192.168.4.30"]
+            traefik["Traefik ingress<br/>+ OIDC plugin"]
+            apps["Applications<br/>(apps/*)"]
+            metallb --> traefik --> apps
+        end
+    end
+
+    git[("GitHub repo<br/>DeWildeDaan/homelab")] -->|reconcile| argocd["ArgoCD"]
+    argocd --> apps
+    user -->|*.home.daandewilde.be| adguard
+    user -->|https · 192.168.4.30| metallb
+    apps -.->|OIDC| auth["Pocket ID"]
+    apps -.->|nfs-nas| nas
+```
+
+Each mini PC runs Proxmox → one Ubuntu VM → one k3s server node. ArgoCD keeps the
+cluster in sync with this repo; Traefik (behind MetalLB) is the single ingress
+entry point, with Pocket ID providing SSO and the NAS providing bulk storage.
+
 ---
 
 ## Goals & Principles
@@ -173,6 +204,16 @@ The result: **drop a chart directory into `apps/`, push, and it deploys.** No
 per-app Application manifest to hand-write. Namespaces are created automatically
 and named after the directory.
 
+```mermaid
+flowchart LR
+    dev([git push]) --> repo[("apps/ in Git")]
+    repo --> appset["ApplicationSet<br/>git directory generator<br/>path: apps/*"]
+    appset -->|one Application per dir| a1["Application: immich"]
+    appset --> a2["Application: servarr"]
+    appset --> a3["Application: ...each apps/* dir"]
+    a1 & a2 & a3 -->|"auto-sync<br/>prune + selfHeal<br/>CreateNamespace"| cluster[("k3s cluster")]
+```
+
 Ordering between resources (e.g. CRDs before the workloads that use them) is
 handled with ArgoCD **sync waves** (`argocd.argoproj.io/sync-wave` annotations).
 
@@ -275,6 +316,31 @@ across namespaces (group claims come from Pocket ID):
 
 The plugin's config secret and the OIDC client secret are both SealedSecrets.
 
+The request path for a middleware-protected app, end to end:
+
+```mermaid
+sequenceDiagram
+    participant U as Client
+    participant D as AdGuard DNS
+    participant T as Traefik (via MetalLB)
+    participant P as Pocket ID
+    participant A as App
+
+    U->>D: resolve app.home.daandewilde.be
+    D-->>U: 192.168.4.30 (MetalLB)
+    U->>T: HTTPS request
+    Note over T: IngressRoute + pocket-id-* middleware
+    alt no valid session
+        T->>U: redirect to Pocket ID
+        U->>P: authenticate (OIDC)
+        P-->>U: code → callback
+        U->>T: callback with code
+        T->>P: exchange code, verify group claim
+    end
+    T->>A: forward request (authorized)
+    A-->>U: response (TLS via wildcard cert)
+```
+
 ---
 
 ## Secrets Management
@@ -294,6 +360,15 @@ echo -n 'REPLACE_ME' | kubeseal \
   --namespace <namespace> \
   --name <secret-name>
 # Paste the ciphertext into the SealedSecret manifest — safe to commit.
+```
+
+```mermaid
+flowchart LR
+    plain["Plain value<br/>(local only)"] -->|kubeseal + cluster pubkey| sealed["SealedSecret<br/>(encrypted)"]
+    sealed -->|git commit / push| repo[("Public repo")]
+    repo -->|ArgoCD sync| ctrl["sealed-secrets-controller<br/>(holds private key)"]
+    ctrl -->|decrypt| secret["Secret<br/>(in-cluster)"]
+    secret --> workload["Workload"]
 ```
 
 **Never commit a plain `Secret`.** All API keys, tokens, passwords, OIDC client
