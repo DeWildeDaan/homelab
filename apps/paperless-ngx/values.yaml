@@ -2,7 +2,7 @@
 # (templates/{gotenberg,tika,redis,postgres}.yaml). Paperless wires to them via
 # PAPERLESS_TIKA_*, PAPERLESS_REDIS, and PAPERLESS_DB* env below.
 gotenberg:
-  image: gotenberg/gotenberg:8.32.0
+  image: gotenberg/gotenberg:8.34.0
 tika:
   image: apache/tika:2.9.2.1-full
 redis:
@@ -32,7 +32,7 @@ ingress:
 paperless-ngx:
   image:
     repository: ghcr.io/paperless-ngx/paperless-ngx
-    tag: "2.14.7"
+    tag: "2.20.15"
 
   # Flip the default ClusterIP service to LoadBalancer so MetalLB pins it to a
   # static LAN IP (same pattern as adguard/immich). Traefik still fronts it on
