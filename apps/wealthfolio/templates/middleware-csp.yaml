@@ -1,13 +1,13 @@
+# apps/wealthfolio/templates/middleware-csp.yaml
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: wealthfolio-csp-fix
   namespace: wealthfolio
 spec:
-  headers:
-    contentSecurityPolicy: >-
-      default-src 'self'; script-src 'self' blob:; style-src 'self' 'unsafe-inline';
-      img-src 'self' data: blob: https:; font-src 'self' data:;
-      connect-src 'self' https://wealthfolio.app https://auth.wealthfolio.app https://connect.wealthfolio.app https://connect-staging.wealthfolio.app;
-      frame-src 'self' blob: about:; child-src 'self' blob: about:; object-src 'none';
-      base-uri 'self'; form-action 'self'; frame-ancestors 'self'; worker-src 'self' blob:
+  plugin:
+    rewriteResponseHeaders:
+      rewrites:
+        - header: "Content-Security-Policy"
+          regex: "frame-ancestors 'none'"
+          replacement: "frame-ancestors 'self'"
