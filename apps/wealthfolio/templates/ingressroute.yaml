@@ -3,14 +3,14 @@ kind: IngressRoute
 metadata:
   name: {{ include "wealthfolio.fullname" . }}
   namespace: {{ .Release.Namespace }}
-  labels:
-    {{- include "wealthfolio.labels" . | nindent 4 }}
 spec:
   entryPoints:
     - websecure
   routes:
     - match: Host(`{{ .Values.ingress.host }}`)
       kind: Rule
+      middlewares:
+        - name: wealthfolio-csp-fix
       services:
         - name: {{ include "wealthfolio.fullname" . }}
           port: {{ .Values.service.port }}
