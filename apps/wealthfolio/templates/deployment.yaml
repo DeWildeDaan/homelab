@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wealthfolio.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "wealthfolio.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "wealthfolio.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "wealthfolio.labels" . | nindent 8 }}
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: wealthfolio
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          env:
+            - name: WF_LISTEN_ADDR
+              value: "0.0.0.0:{{ .Values.service.port }}"
+            - name: WF_DB_PATH
+              value: "/data/wealthfolio.db"
+            - name: WF_CORS_ALLOW_ORIGINS
+              value: "{{ .Values.ingress.url }}"
+            - name: WF_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: WF_SECRET_KEY
+            - name: WF_AUTH_PASSWORD_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: WF_AUTH_PASSWORD_HASH
+            # --- OIDC / Pocket ID SSO ---
+            - name: WF_OIDC_ISSUER_URL
+              value: "{{ .Values.oidc.issuerUrl }}"
+            - name: WF_OIDC_CLIENT_ID
+              value: "{{ .Values.oidc.clientId }}"
+            - name: WF_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: WF_OIDC_CLIENT_SECRET
+            - name: WF_OIDC_REDIRECT_URL
+              value: "{{ .Values.oidc.redirectUrl }}"
+            - name: WF_OIDC_ALLOWED_EMAILS
+              value: "{{ .Values.oidc.allowedEmails }}"
+            - name: WF_OIDC_POST_LOGOUT_REDIRECT_URL
+              value: "{{ .Values.ingress.url }}"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+          livenessProbe:
+            httpGet:
+              path: /api/v1/healthz
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /api/v1/healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "wealthfolio.fullname" . }}-data

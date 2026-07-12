@@ -1,0 +1,37 @@
+replicaCount: 1
+
+image:
+  repository: wealthfolio/wealthfolio
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8088
+
+persistence:
+  storageClass: longhorn
+  size: 5Gi
+
+ingress:
+  host: wealthfolio.home.daandewilde.be
+  url: https://wealthfolio.home.daandewilde.be
+
+oidc:
+  issuerUrl: https://auth.home.daandewilde.be
+  clientId: 2385700a-2282-4ad0-abcd-dcff44b56e16
+  redirectUrl: https://wealthfolio.home.daandewilde.be/api/v1/auth/oidc/callback
+  allowedEmails: "daan1.dewilde@gmail.com,daandewilde113@gmail.com"   # comma-separated allowlist, required
+
+secrets:
+  name: wealthfolio-secrets
+  encryptedSecretKey: "AgA3nytcwwd2BFtrqruNVcZV7zJ7nmkJQBW+NQcXzzjOgvcTHOqOtr2NncSuGNES9R1wRG0Ebfe+283PtaDvS1VFvxA8r0uvR5byKbaTb4iSqk9GslSqluy/0yFlPHUr7sSb795MfeJhzlN+W81n+krCtJ/Z4YnQqQ2Ic6BvXNa0xT+hJlmSLdJlQnFmUws3/BvIil3NJbh/rDq3xL1c5tIOjDw7hIf1T9lyLicsRY+Sbih2bvhtsWfY87uFPCjCNJizFzE+tqLk57LLL/j9ZXK5FZAbMzdvTrYDZicX1VvBF9SiU3ck3FtfUWbfZiNg/iSdp7SvK/em8rFQulB53xNpDKGvpgVVoLMY786SP3owWITFrgtm2mIulnqzhScJL4rOA9TQ/h6qY2VFUrpDwBms9q7td66hzGGkPLOvnYWJPM1mMIoU1LXrwhQZ5PloZwVuGClDS9YBGZqJF4bvyXyEZ7CqJEIhXXf8tOmyyzxdQkN1FDdBVzy3vhgRizsvc/FOdqww1GzLkq7uzsKpLSddFUfEK5ydTIv/vNPwB0y4AP0ZHONBvKxTo3zmnmFzwck0j9bFQr9KaVaMFiTHxDtpk4qGSyzEmLvNBEr3/ND2Ro70m5ylMz7IUnvhhe44d9nxMdAu0pl2fHqvDCFtuVxEKD3EZyA+oEDcq3ko4Pvja5SPGTv6hIJ+vGPhmDETdAWd135vcfTzsv+Lvst6ldJUfTBeSCDYHCfsg7nHMwIi1oKpcX6FNsySTFoBLw=="
+  encryptedPasswordHash: "AgCazmONoNHS7C2DjKitlQKf9b/mz4Gw22XMi+t1WXmSHHukkrFDHPJD00DR1EIby6qYP0B6anjW4QUqhD/56eg7d7cxYSwmt4lpsopHDi8NmrGG7NGtJoVq+sFhXGZcD3hc6YX9LlzXWViC0jHPiaDKOOed5VRL72+Z1IGYzPmrG1JteDAM7Ba/+39sAG6kmrYiQ+YQY7Zvak+OzIXFCInxBIh3RjQcGa/giaLmJGeWqbUnmBMaR4hTAFvSUSXlL6RbJ/c+zfwsFC340vIi+rPvYKFs/rA7nQFrRUEJo5zlS+q+fq4iiJBVDsnlVuFQgtr62PEA6lYCU4adYncCosJ5houLXZCPUxJCTbvfV/wB+sOGYcIrSDlkNsdE+j8EO16J7n4GMOe6zVXZe2FrqmhZokUHp94a7Oi7FQKfpMFJPam3vE3KUQSairhWxMxUhI/M7aAyehMtqzn+QWy3YM+Y9DlUNKQun8wlgnqab8loP/QqSndhjYFRuRABICbPf6S2cXSDZTOb4PmmLwDosPRO6lna1h6/fxoqMybvEnjKiXJd3K6Xj/R0wEG4fGhjRsYjwMO6ExAZDvYBI+mkPIcTjBdD4IGdI9Z1byhyU8pZYBnPv6ZcrNCDQwGaOCXFO4ebIzt8juq/81zTYZeJ0lNhNRdhdVF9zntm1/Dm6x/NKxYjnuyIHVOtcc218xRMkcnpMP5vnjLAalUZesRhas+tfc3QSLTjmYqOJGvsV/f3tZVe1ZJDVOLw8WaCNONLUK+S+ZHc6ec6gXVeXyPnWp5p+bt4SqLJBuBLRyNoMUsFhLK5s8XGIGrrXqFIpAsBkS+lk/I9jcXb+5aa012YXecu5VMZWSw="
+  encryptedOidcClientSecret: "AgAHQ1eL9h7lBFBMTDoxkkYwh9vEqWzyzg79BYATHXPddCDyxLKdC/EYEqWWJuQruFuIsRsyQIpcq0vbEVuuVkpeNQNWhjbO1lS5FqZr+cT+dmtKUrVFmRJo+xvoRVaKe4eUANyiRAYLisvkN95TwprqpDXec0GhztPnx7BG1uX201mbdm9gSpwlkLb9gLlKhEhSOKRq6JN6xs269+gl/27YgsjvyS7tyQTb3lhYfOsBIV2oXPYng9+LQzgd3UkgGaH68+qm2JafDvpV9lSw2T35R+AQUK0Gg0VuTUykqcH+Dva3PPZjykiEk/kw06wHkeiSPvQUu6YsSutTJwMNvmikCjBzyDOV+aa7/3Be0DnkUwMlNfGYifBMGmdNXbL11XEPDJpAuQq//DWZkd6k0/yrzW6oSBWRnh6dqLnMgp2eM92kPCjUqqEi6LsZGfn4VdRRvWd41G7J2baPsCqosN3gU0ohHXu4q3rlu/wTlV29I0Xl6YRsDPsIsO3Wgv3JYNYRp2cflvcdj1lVo+QN+1ei77gSUY3IX2ny9pC5ecxdG25fnS6PVUfOv42qmsL4OKSDjs7xpESoLhRAFhm6lYpZ4CjabFnIlRGVxMIplUAq6CJ8b7TPhDk5pPqFI4Mz21BKco9iqaj6Am5utriEnLb9cdDv8OtwFiBqnEjSIDEmgmTxe4SXlRJVdncEIUTs3t55JnK4t6N3HZIk1ShyFqPRrYox4Zs3/zVAKnOpR63eRA=="
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

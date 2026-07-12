@@ -1,0 +1,6 @@
+apiVersion: v2
+name: wealthfolio
+description: Custom Helm chart for self-hosted Wealthfolio (privacy-first portfolio tracker)
+type: application
+version: 0.1.0
+appVersion: "latest"
