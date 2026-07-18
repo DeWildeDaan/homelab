@@ -387,7 +387,7 @@ maintainerr:
         app:
           image:
             repository: ghcr.io/maintainerr/maintainerr
-            tag: 3.17.1
+            tag: 3.18.0
           env:
             TZ: *tz
 
