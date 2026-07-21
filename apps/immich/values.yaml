@@ -58,7 +58,6 @@ immich:
       data:
         enabled: true
         type: emptyDir
-        size: 2Gi
 
   # ML model cache — persist so models aren't re-downloaded on every restart.
   machine-learning:
