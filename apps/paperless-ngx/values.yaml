@@ -75,18 +75,20 @@ paperless-ngx:
           name: paperless-secrets
           key: redis-password
     PAPERLESS_REDIS: redis://:$(A_REDIS_PASSWORD)@paperless-redis:6379
-    # Database → in-repo postgres (templates/postgres.yaml). Subchart is
-    # disabled below; these vars take the place of what common.yaml would
-    # have emitted.
+    # Database → CloudNativePG cluster paperless-db-16, defined in
+    # apps/cloudnative-pg/templates/paperless-db-16.yaml (runs in this namespace).
+    # On a major upgrade, only DBHOST changes (→ paperless-db-17-rw); the secret
+    # ref is version-independent. The old in-repo postgres (templates/postgres.yaml)
+    # stays until Phase 3 decommission.
     PAPERLESS_DBENGINE: postgresql
-    PAPERLESS_DBHOST: paperless-postgres
+    PAPERLESS_DBHOST: paperless-db-16-rw
     PAPERLESS_DBNAME: paperless
     PAPERLESS_DBUSER: paperless
     PAPERLESS_DBPASS:
       valueFrom:
         secretKeyRef:
-          name: paperless-postgres
-          key: postgres-password
+          name: paperless-db-app
+          key: password
 
   # OIDC config
     PAPERLESS_REDIRECT_LOGIN_TO_SSO: true
