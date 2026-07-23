@@ -50,10 +50,12 @@ spec:
       memory: 512Mi
 
   bootstrap:
+    # NOTE: bootstrap runs ONCE, at cluster creation — it is inert now that
+    # paperless-db-16 exists. The one-time `import`/`externalClusters` blocks that
+    # pulled data from the old paperless-postgres were removed at decommission.
     initdb:
       # Destination DB + owner pinned to `paperless` so PAPERLESS_DBNAME/DBUSER
-      # keep working (in microservice import these come from initdb.database/owner,
-      # NOT the source, and default to "app").
+      # keep working (these default to "app" if omitted).
       database: paperless
       owner: paperless
       # Version-INDEPENDENT credential secret. Because it's named explicitly (not
@@ -62,24 +64,3 @@ spec:
       # Paperless env secret ref. Adopted from templates/paperless-db-app-sealedsecret.yaml.
       secret:
         name: paperless-db-app
-      # One-time logical import (pg_dump -Fd | pg_restore --no-owner). For v16
-      # this pulls from the OLD hand-rolled paperless-postgres Deployment. Runs
-      # ONCE at bootstrap — a point-in-time snapshot, not live replication, so
-      # freeze Paperless writes during the import. Inert after first sync; drop
-      # this block (and externalClusters) once the old DB is decommissioned.
-      import:
-        type: microservice
-        databases:
-          - paperless
-        source:
-          externalCluster: paperless-old
-
-  externalClusters:
-    - name: paperless-old
-      connectionParameters:
-        host: paperless-postgres        # old Service in paperless-ngx (import source)
-        user: paperless
-        dbname: paperless
-      password:
-        name: paperless-postgres        # existing SealedSecret (current DB password)
-        key: postgres-password

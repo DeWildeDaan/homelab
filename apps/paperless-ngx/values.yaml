@@ -8,23 +8,12 @@ tika:
 redis:
   image: redis:7.4-alpine
 
-# OLD Postgres — the hand-rolled Deployment in templates/postgres.yaml. KEPT
-# RUNNING during the CNPG migration because it's the import SOURCE (Phase 1–2).
-# Removed together with templates/postgres.yaml in Phase 3 (decommission).
-#
-# The NEW Postgres is a CloudNativePG `Cluster` (paperless-db-16) defined in
-# apps/cloudnative-pg/templates/paperless-db.yaml — all CNPG clusters live in
-# that one folder. It runs in THIS namespace so Paperless reads its password
-# from the same-namespace `paperless-db-app` secret and talks to it over the
-# in-namespace service `paperless-db-16-rw`.
-postgres:
-  image: postgres:16-alpine
-  database: paperless
-  username: paperless
-  storage:
-    size: 20Gi
-    storageClass: longhorn
-    accessMode: ReadWriteOnce
+# Postgres is a CloudNativePG `Cluster` (paperless-db-16) defined in
+# apps/cloudnative-pg/templates/paperless-db-16.yaml — all CNPG clusters live in
+# that one folder. It runs in THIS namespace so Paperless reads its password from
+# the same-namespace `paperless-db-app` secret and reaches it over the
+# in-namespace service `paperless-db-16-rw` (see PAPERLESS_DB* env below).
+# The old hand-rolled postgres Deployment was decommissioned.
 
 ingress:
   host: paperless.home.daandewilde.be
@@ -62,24 +51,15 @@ paperless-ngx:
         secretKeyRef:
           name: paperless-secrets
           key: secret-key
-    # Office-doc pipeline → in-repo Gotenberg + Tika services.
     PAPERLESS_TIKA_ENABLED: "1"
     PAPERLESS_TIKA_ENDPOINT: http://paperless-tika:9998
     PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://paperless-gotenberg:3000
-    # Celery broker → in-repo redis (templates/redis.yaml). The bjw-s common
-    # chart sorts env vars alphabetically, so the `A_` prefix guarantees
-    # REDIS_PASSWORD is materialised before $(...) expansion in PAPERLESS_REDIS.
     A_REDIS_PASSWORD:
       valueFrom:
         secretKeyRef:
           name: paperless-secrets
           key: redis-password
     PAPERLESS_REDIS: redis://:$(A_REDIS_PASSWORD)@paperless-redis:6379
-    # Database → CloudNativePG cluster paperless-db-16, defined in
-    # apps/cloudnative-pg/templates/paperless-db-16.yaml (runs in this namespace).
-    # On a major upgrade, only DBHOST changes (→ paperless-db-17-rw); the secret
-    # ref is version-independent. The old in-repo postgres (templates/postgres.yaml)
-    # stays until Phase 3 decommission.
     PAPERLESS_DBENGINE: postgresql
     PAPERLESS_DBHOST: paperless-db-16-rw
     PAPERLESS_DBNAME: paperless

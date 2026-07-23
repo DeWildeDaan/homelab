@@ -32,8 +32,6 @@ spec:
         - name: redis
           image: {{ .Values.redis.image }}
           imagePullPolicy: IfNotPresent
-          # Celery queue is ephemeral — disable RDB snapshots and AOF so the
-          # container has no on-disk state to manage.
           args:
             - --requirepass
             - $(REDIS_PASSWORD)
