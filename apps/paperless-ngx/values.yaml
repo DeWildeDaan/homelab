@@ -8,18 +8,21 @@ tika:
 redis:
   image: redis:7.4-alpine
 
-# Postgres — same pattern as immich (templates/postgres.yaml). Bitnami removed
-# docker.io/bitnami/postgresql from Docker Hub on 2025-08-28, so we replace the
-# bundled subchart with a vanilla postgres Deployment.
+# OLD Postgres — the hand-rolled Deployment in templates/postgres.yaml. KEPT
+# RUNNING during the CNPG migration because it's the import SOURCE (Phase 1–2).
+# Removed together with templates/postgres.yaml in Phase 3 (decommission).
+#
+# The NEW Postgres is a CloudNativePG `Cluster` (paperless-db-16) defined in
+# apps/cloudnative-pg/templates/paperless-db.yaml — all CNPG clusters live in
+# that one folder. It runs in THIS namespace so Paperless reads its password
+# from the same-namespace `paperless-db-app` secret and talks to it over the
+# in-namespace service `paperless-db-16-rw`.
 postgres:
   image: postgres:16-alpine
   database: paperless
   username: paperless
   storage:
     size: 20Gi
-    # local-path (k3s default) — same reasoning as immich: Synology NFS
-    # all-squash hides the in-container UID and postgres init refuses to
-    # chown PGDATA. Single-replica, so single-node pinning is fine.
     storageClass: longhorn
     accessMode: ReadWriteOnce
 

@@ -1,0 +1,83 @@
+---
+# ============================================================================
+# Paperless Postgres — CloudNativePG cluster
+# ============================================================================
+# All CNPG clusters live in this folder (apps/cloudnative-pg/templates/). This
+# one runs in the `paperless-ngx` namespace (explicit metadata.namespace, NOT
+# the operator's namespace) so Paperless can:
+#   - read the DB password from the same-namespace secret `paperless-db-app`
+#   - reach the primary over the in-namespace service `paperless-db-16-rw`
+# The cluster-wide operator reconciles Clusters in any namespace.
+#
+# The MAJOR VERSION is baked into the name (`paperless-db-16`). Major upgrades
+# are done BLUE/GREEN, not in-place:
+#   1. Copy this file to paperless-db-17, bump the name + imageName tag, and set
+#      its import.source.externalCluster to `paperless-db-16` (importing the
+#      `paperless-db-app` secret / `paperless-db-16-rw` service).
+#   2. Sync → the new cluster imports from the running v16 one.
+#   3. Repoint Paperless env PAPERLESS_DBHOST: paperless-db-16-rw → -17-rw.
+#      (The secret ref never changes — see initdb.secret below.)
+#   4. Once verified, delete the paperless-db-16 file; ArgoCD prunes the old one.
+# ============================================================================
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: paperless-db-16
+  namespace: paperless-ngx
+  annotations:
+    # Operator (+ its CRDs) installs in wave 0 from the chart dependency; bring
+    # the Cluster up afterwards. SkipDryRun avoids a first-sync failure when the
+    # CRD is created in the same sync as this CR.
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+
+  storage:
+    size: 20Gi
+    # longhorn (not nfs-nas): Synology NFS all-squash hides the in-container UID
+    # and Postgres init refuses to chown PGDATA. Same decision as immich.
+    storageClassName: longhorn
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+  bootstrap:
+    initdb:
+      # Destination DB + owner pinned to `paperless` so PAPERLESS_DBNAME/DBUSER
+      # keep working (in microservice import these come from initdb.database/owner,
+      # NOT the source, and default to "app").
+      database: paperless
+      owner: paperless
+      # Version-INDEPENDENT credential secret. Because it's named explicitly (not
+      # the auto-generated <cluster>-app), every version of this cluster reuses
+      # the same secret — so a major upgrade never re-seals creds or changes the
+      # Paperless env secret ref. Adopted from templates/paperless-db-app-sealedsecret.yaml.
+      secret:
+        name: paperless-db-app
+      # One-time logical import (pg_dump -Fd | pg_restore --no-owner). For v16
+      # this pulls from the OLD hand-rolled paperless-postgres Deployment. Runs
+      # ONCE at bootstrap — a point-in-time snapshot, not live replication, so
+      # freeze Paperless writes during the import. Inert after first sync; drop
+      # this block (and externalClusters) once the old DB is decommissioned.
+      import:
+        type: microservice
+        databases:
+          - paperless
+        source:
+          externalCluster: paperless-old
+
+  externalClusters:
+    - name: paperless-old
+      connectionParameters:
+        host: paperless-postgres        # old Service in paperless-ngx (import source)
+        user: paperless
+        dbname: paperless
+      password:
+        name: paperless-postgres        # existing SealedSecret (current DB password)
+        key: postgres-password

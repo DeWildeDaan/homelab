@@ -1,0 +1,22 @@
+# Upstream cloudnative-pg operator chart values.
+# The operator watches the whole cluster (config.clusterWide: true, the default)
+# and manages one PostgreSQL `Cluster` CR per app — starting with paperless-ngx.
+# No IngressRoute: the operator has no UI, it only reconciles Cluster resources.
+cloudnative-pg:
+  # Operator manages its own CRDs (clusters.postgresql.cnpg.io, etc.) so the
+  # Cluster CR in apps/paperless-ngx can apply. Chart default is already true;
+  # pinned here so it's explicit and never silently flips.
+  crds:
+    create: true
+
+  # Single operator replica is plenty for a 3-node homelab; the operator is
+  # stateless and re-elects on node loss.
+  replicaCount: 1
+
+  # The operator is lightweight — it reconciles, it doesn't run Postgres itself.
+  resources:
+    requests:
+      cpu: 50m
+      memory: 100Mi
+    limits:
+      memory: 200Mi
