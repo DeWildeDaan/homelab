@@ -318,6 +318,12 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
+          # Server-side apply — required for operators that ship very large CRDs
+          # (e.g. CloudNativePG's `clusters.postgresql.cnpg.io` is >256 KB).
+          # Client-side apply stores a last-applied-configuration annotation that
+          # exceeds Kubernetes' 262144-byte metadata limit and the CRD fails to
+          # apply. SSA doesn't write that annotation. Safe for all other apps too.
+          - ServerSideApply=true
 EOF
 ```
 

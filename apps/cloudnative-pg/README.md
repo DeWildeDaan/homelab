@@ -31,6 +31,15 @@ credential secret (`paperless-db-app`) is referenced explicitly and is
 version-independent, so it never changes across upgrades. Full steps are in the
 header comment of `templates/paperless-db.yaml`.
 
+## Requires Server-Side Apply
+
+CNPG's `clusters.postgresql.cnpg.io` (and `poolers`) CRDs are larger than
+Kubernetes' 262144-byte annotation limit, so ArgoCD's default **client-side**
+apply fails with `metadata.annotations: Too long`. The cluster ApplicationSet
+therefore sets `syncOptions: [ServerSideApply=true]` (see `setup.md` Step 12).
+Symptom if it's missing: operator logs `no matches for kind "Cluster" in version
+"postgresql.cnpg.io/v1"` because the CRD never applied.
+
 ## Dependency order
 
 Deploy this app and let it go **Healthy first**. The sync-waves above order

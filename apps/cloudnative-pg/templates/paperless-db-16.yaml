@@ -38,7 +38,9 @@ spec:
     size: 20Gi
     # longhorn (not nfs-nas): Synology NFS all-squash hides the in-container UID
     # and Postgres init refuses to chown PGDATA. Same decision as immich.
-    storageClassName: longhorn
+    # NOTE: CNPG's field is `storageClass` (NOT `storageClassName` — that's the
+    # PVC field; SSA rejects the wrong one as an undeclared schema field).
+    storageClass: longhorn
 
   resources:
     requests:
