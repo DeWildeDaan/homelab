@@ -31,13 +31,17 @@ immich:
       library:
         existingClaim: immich-library
 
-  # DB connection — points at the postgres Deployment in templates/postgres.yaml
+  # DB connection — points at the CloudNativePG cluster immich-db, defined in
+  # apps/cloudnative-pg/templates/immich-db.yaml (runs in this namespace). Immich
+  # connects as the postgres superuser via the immich-db-superuser secret. A
+  # future major upgrade is an in-place imageName tag bump on that cluster — this
+  # host/secret stays the same. The old in-repo postgres stays until Phase 3.
   controllers:
     main:
       containers:
         main:
           env:
-            DB_HOSTNAME: immich-postgres
+            DB_HOSTNAME: immich-db-rw
             DB_USERNAME: postgres
             DB_DATABASE_NAME: immich
             DB_PORT: "5432"
@@ -45,7 +49,7 @@ immich:
             DB_PASSWORD:
               valueFrom:
                 secretKeyRef:
-                  name: immich-postgres
+                  name: immich-db-superuser
                   key: password
 
   # Bundled Valkey (Redis) — required by Immich.
