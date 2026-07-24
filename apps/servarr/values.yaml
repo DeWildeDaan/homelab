@@ -45,7 +45,7 @@ prowlarr:
       enabled: true
       type: persistentVolumeClaim
       storageClass: longhorn
-      nameOverride: config-lh
+      suffix: config-lh
       accessMode: ReadWriteOnce
       size: 2Gi
       advancedMounts:
@@ -80,7 +80,7 @@ sonarr:
       enabled: true
       type: persistentVolumeClaim
       storageClass: longhorn
-      nameOverride: config-lh
+      suffix: config-lh
       accessMode: ReadWriteOnce
       size: 2Gi
       advancedMounts:
@@ -124,7 +124,7 @@ radarr:
       enabled: true
       type: persistentVolumeClaim
       storageClass: longhorn
-      nameOverride: config-lh
+      suffix: config-lh
       accessMode: ReadWriteOnce
       size: 2Gi
       advancedMounts:
@@ -214,7 +214,7 @@ qbittorrent:
       enabled: true
       type: persistentVolumeClaim
       storageClass: longhorn
-      nameOverride: config-lh
+      suffix: config-lh
       accessMode: ReadWriteOnce
       size: 2Gi
       advancedMounts:
@@ -261,7 +261,7 @@ jellyseerr:
       enabled: true
       type: persistentVolumeClaim
       storageClass: longhorn
-      nameOverride: config-lh
+      suffix: config-lh
       accessMode: ReadWriteOnce
       size: 2Gi
       advancedMounts:
@@ -299,7 +299,7 @@ jellyfin:
       enabled: true
       type: persistentVolumeClaim
       storageClass: longhorn
-      nameOverride: config-lh
+      suffix: config-lh
       accessMode: ReadWriteOnce
       size: 20Gi
       advancedMounts:
@@ -357,7 +357,7 @@ bazarr:
       enabled: true
       type: persistentVolumeClaim
       storageClass: longhorn
-      nameOverride: config-lh
+      suffix: config-lh
       accessMode: ReadWriteOnce
       size: 2Gi
       advancedMounts:
@@ -403,7 +403,7 @@ maintainerr:
       enabled: true
       type: persistentVolumeClaim
       storageClass: longhorn
-      nameOverride: config-lh
+      suffix: config-lh
       accessMode: ReadWriteOnce
       size: 2Gi
       advancedMounts:
