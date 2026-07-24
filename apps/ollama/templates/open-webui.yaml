@@ -63,6 +63,8 @@ spec:
               value: "{{ .Values.oidc.providerName }}"
             - name: OAUTH_SCOPES
               value: "{{ .Values.oidc.scopes }}"
+            - name: OAUTH_CODE_CHALLENGE_METHOD
+              value: "{{ .Values.oidc.codeChallengeMethod }}"
             - name: OPENID_REDIRECT_URI
               value: "{{ .Values.oidc.redirectUri }}"
             - name: OAUTH_CLIENT_ID

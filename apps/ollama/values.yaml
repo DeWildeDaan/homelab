@@ -59,6 +59,7 @@ oidc:
   providerUrl: https://auth.home.daandewilde.be/.well-known/openid-configuration
   providerName: "Pocket ID"
   scopes: "openid email profile groups"
+  codeChallengeMethod: "S256"
   clientId: "d90896ff-9dd2-42f8-84d7-385db5d250a0"
   redirectUri: https://ollama.home.daandewilde.be/oauth/oidc/callback
   roleManagement: true
