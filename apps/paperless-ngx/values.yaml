@@ -61,7 +61,7 @@ paperless-ngx:
           key: redis-password
     PAPERLESS_REDIS: redis://:$(A_REDIS_PASSWORD)@paperless-redis:6379
     PAPERLESS_DBENGINE: postgresql
-    PAPERLESS_DBHOST: paperless-db-16-rw
+    PAPERLESS_DBHOST: paperless-db-rw
     PAPERLESS_DBNAME: paperless
     PAPERLESS_DBUSER: paperless
     PAPERLESS_DBPASS:
