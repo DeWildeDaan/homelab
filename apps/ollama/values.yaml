@@ -35,14 +35,8 @@ openWebui:
   # Must stay true — Open WebUI's auth layer is what OAuth/OIDC plugs into.
   # (WEBUI_AUTH=false disables authentication entirely, including SSO.)
   auth: true
+  loginForm: false
 
-  # Hide the local email/password form so the only way in is the Pocket ID
-  # button (true single sign-on). Keep it `true` for the very first login/setup,
-  # then flip to false once SSO is confirmed working, to avoid lockout.
-  loginForm: true
-
-  # Open WebUI bundles sentence-transformers + ONNX runtime and loads the RAG
-  # embedding model (all-MiniLM-L6-v2) into RAM on first boot, so 1Gi OOMKills it.
   resources:
     requests:
       cpu: 100m
