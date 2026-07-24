@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: open-webui-data
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "open-webui.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.openWebui.persistence.storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.openWebui.persistence.size }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open-webui
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "open-webui.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "open-webui.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "open-webui.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: open-webui
+          image: "{{ .Values.openWebui.image.repository }}:{{ .Values.openWebui.image.tag }}"
+          imagePullPolicy: {{ .Values.openWebui.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.openWebui.service.port }}
+          env:
+            - name: OLLAMA_BASE_URL
+              value: "http://ollama:{{ .Values.ollama.service.port }}"
+            - name: WEBUI_URL
+              value: "{{ .Values.ingress.url }}"
+            - name: WEBUI_AUTH
+              value: "{{ .Values.openWebui.auth }}"
+            - name: ENABLE_LOGIN_FORM
+              value: "{{ .Values.openWebui.loginForm }}"
+            # --- Pocket ID OIDC SSO ---
+            # Read OAuth settings from env on every boot instead of caching them
+            # in the DB after first launch — keeps this GitOps-managed.
+            - name: ENABLE_OAUTH_PERSISTENT_CONFIG
+              value: "false"
+            - name: ENABLE_OAUTH_SIGNUP
+              value: "true"
+            - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
+              value: "true"
+            - name: OPENID_PROVIDER_URL
+              value: "{{ .Values.oidc.providerUrl }}"
+            - name: OAUTH_PROVIDER_NAME
+              value: "{{ .Values.oidc.providerName }}"
+            - name: OAUTH_SCOPES
+              value: "{{ .Values.oidc.scopes }}"
+            - name: OPENID_REDIRECT_URI
+              value: "{{ .Values.oidc.redirectUri }}"
+            - name: OAUTH_CLIENT_ID
+              value: "{{ .Values.oidc.clientId }}"
+            - name: OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: OAUTH_CLIENT_SECRET
+            - name: ENABLE_OAUTH_ROLE_MANAGEMENT
+              value: "{{ .Values.oidc.roleManagement }}"
+            - name: OAUTH_ROLES_CLAIM
+              value: "{{ .Values.oidc.rolesClaim }}"
+            - name: OAUTH_ALLOWED_ROLES
+              value: "{{ .Values.oidc.allowedRoles }}"
+            - name: OAUTH_ADMIN_ROLES
+              value: "{{ .Values.oidc.adminRoles }}"
+          volumeMounts:
+            - name: data
+              mountPath: /app/backend/data
+          resources:
+            {{- toYaml .Values.openWebui.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: open-webui-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-webui
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "open-webui.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "open-webui.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.openWebui.service.port }}
+      targetPort: http

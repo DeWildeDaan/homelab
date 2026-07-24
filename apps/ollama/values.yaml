@@ -1,0 +1,69 @@
+ollama:
+  image:
+    repository: ollama/ollama
+    tag: "0.32.3"
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 11434
+
+  persistence:
+    storageClass: nfs-nas
+    size: 500Gi
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1Gi
+    limits:
+      cpu: "4"
+      memory: 6Gi
+
+openWebui:
+  image:
+    repository: ghcr.io/open-webui/open-webui
+    tag: "0.10.2"
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 8080
+
+  persistence:
+    storageClass: longhorn
+    size: 2Gi
+
+  # Must stay true — Open WebUI's auth layer is what OAuth/OIDC plugs into.
+  # (WEBUI_AUTH=false disables authentication entirely, including SSO.)
+  auth: true
+
+  # Hide the local email/password form so the only way in is the Pocket ID
+  # button (true single sign-on). Keep it `true` for the very first login/setup,
+  # then flip to false once SSO is confirmed working, to avoid lockout.
+  loginForm: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+ingress:
+  host: ollama.home.daandewilde.be
+  url: https://ollama.home.daandewilde.be
+
+oidc:
+  providerUrl: https://auth.home.daandewilde.be/.well-known/openid-configuration
+  providerName: "Pocket ID"
+  scopes: "openid email profile groups"
+  clientId: "d90896ff-9dd2-42f8-84d7-385db5d250a0"
+  redirectUri: https://ollama.home.daandewilde.be/oauth/oidc/callback
+  roleManagement: true
+  rolesClaim: groups
+  allowedRoles: "admin,non_admin"
+  adminRoles: "admin"
+
+secrets:
+  name: ollama-secrets
+  encryptedOidcClientSecret: "AgAWcsYft57n7LsZAXknmor+ujR2/TbkOa1TT0VKkL9hIAQXabGsy7Njtm6RhFIcG9bR+ylCpWP2yzc72vY8vSNcSwNjan5ESMVvz5IKYsUxHfIF9gg4ovRxyl4vLYSkag6d94geVmheMnLW9nDu0YN5j4kamcBeHEtLM1JpO8oPjLizUG8IDlW6/KP2ii4ybXrWDWPCMIBD4DN4QmIqUqk7VDgbALRH1wV2Vhd1os5Mhf14fNBXBMQ0u99ltoOozAL+rIvNjLZnPv8Z3kdsjj5MLmYl6yP6G2OKrCmGaxWHCXF0i//3cLE2r6wuNjjXIMO2B4KW9APl+VZkxMzdrUUCdLC/4nUtjRxqwlAzJfVmWOK7xpnPWI4xIHrZhUgGYEvzG0/fCRhxuFmYRL6HAojsUOk8S5GWZgILhd2WyYtrJNjcgARmTvU/8Djh0yN/YuHbvZJoam5ao95n4cc7oGziHzzRDXzYlTdJYVpcfiNbbpXMdIRvJe6rqRbqxrER80Xf/8uOJCWWKvAbfV4dfkv9lpkoXqmI//FsqnkfX/C7+F05QOHa3b/ZAccXsEuoESv4dP21Nrw5ow/YNL3sJQiq1UrbNiNC7m38hK6Y9JC3O04J/6OgVdHBgYvrlKwXQH9QZ8tjT2XEKP7/f9UIvdDFxIZuDFIQqr1qgFN65igkp4cfNOsFXdRl/P/5vzPurBT3uCtCqrvKEYV9X4NG8XeP7MjfsHWaz783NLQGd6JXVg=="

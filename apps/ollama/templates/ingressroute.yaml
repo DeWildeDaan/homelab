@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: open-webui
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "open-webui.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ .Values.ingress.host }}`)
+      kind: Rule
+      services:
+        - name: open-webui
+          port: {{ .Values.openWebui.service.port }}
+  tls: {}
