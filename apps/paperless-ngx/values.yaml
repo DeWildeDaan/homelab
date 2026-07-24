@@ -4,9 +4,9 @@
 gotenberg:
   image: gotenberg/gotenberg:8.34.0
 tika:
-  image: apache/tika:2.9.2.1-full
+  image: apache/tika:3.3.1.0-full
 redis:
-  image: redis:7.4-alpine
+  image: redis:8.8-alpine
 
 # Postgres is a CloudNativePG `Cluster` (paperless-db-16) defined in
 # apps/cloudnative-pg/templates/paperless-db-16.yaml — all CNPG clusters live in
@@ -24,7 +24,7 @@ ingress:
 paperless-ngx:
   image:
     repository: ghcr.io/paperless-ngx/paperless-ngx
-    tag: "2.20.15"
+    tag: "3.0.2"
 
   # Flip the default ClusterIP service to LoadBalancer so MetalLB pins it to a
   # static LAN IP (same pattern as adguard/immich). Traefik still fronts it on
