@@ -42,17 +42,20 @@ immich:
                 secretKeyRef:
                   name: immich-db-superuser
                   key: password
+            # Redis — points at the operator-managed `Redis` CR (immich-redis),
+            # defined in apps/redis-operator/templates/immich-redis.yaml (runs in
+            # this namespace). Overrides the chart default REDIS_HOSTNAME, which
+            # would otherwise point at the now-disabled bundled valkey. No auth,
+            # matching the old bundled valkey's in-cluster posture.
+            REDIS_HOSTNAME: immich-redis
+            REDIS_PORT: "6379"
 
-  # Bundled Valkey (Redis) — required by Immich.
-  # Queue lives on emptyDir: NFS squash breaks valkey's startup chown, and
-  # the queue is just in-flight jobs (re-discovered on next scan after
-  # pod restart).
+  # Redis — the bundled Valkey subchart is disabled; replaced by the
+  # operator-managed `Redis` CR (immich-redis) in apps/redis-operator, wired via
+  # REDIS_HOSTNAME/REDIS_PORT above. Same model as the CloudNativePG database:
+  # one operator, one CR per app, upgrades handled by the operator.
   valkey:
-    enabled: true
-    persistence:
-      data:
-        enabled: true
-        type: emptyDir
+    enabled: false
 
   # ML model cache — persist so models aren't re-downloaded on every restart.
   machine-learning:

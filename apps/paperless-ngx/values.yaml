@@ -1,12 +1,16 @@
-# Knobs for the in-repo Gotenberg + Tika + Redis + Postgres sidecars
-# (templates/{gotenberg,tika,redis,postgres}.yaml). Paperless wires to them via
-# PAPERLESS_TIKA_*, PAPERLESS_REDIS, and PAPERLESS_DB* env below.
+# Knobs for the in-repo Gotenberg + Tika sidecars (templates/{gotenberg,tika}.yaml).
+# Paperless wires to them via PAPERLESS_TIKA_* env below.
 gotenberg:
   image: gotenberg/gotenberg:8.34.0
 tika:
   image: apache/tika:2.9.2.1-full
-redis:
-  image: redis:7.4-alpine
+
+# Redis is an OT redis-operator standalone `Redis` CR (paperless-redis) defined in
+# apps/redis-operator/templates/paperless-redis.yaml — all Redis CRs live in that
+# one folder. It runs in THIS namespace so Paperless reads its password from the
+# same-namespace `paperless-secrets` secret and reaches it over the operator's
+# in-namespace service `paperless-redis` (see PAPERLESS_REDIS env below). The old
+# hand-rolled redis Deployment was decommissioned.
 
 # Postgres is a CloudNativePG `Cluster` (paperless-db-16) defined in
 # apps/cloudnative-pg/templates/paperless-db-16.yaml — all CNPG clusters live in
@@ -109,9 +113,9 @@ paperless-ngx:
   postgresql:
     enabled: false
 
-  # Redis — bundled bitnami/redis subchart disabled; replaced by the in-repo
-  # Deployment in templates/redis.yaml. Bitnami removed docker.io/bitnami/redis
-  # from Docker Hub on 2025-08-28 (chart still pins the deleted tag), so we
-  # run plain redis:7-alpine ourselves and wire it via PAPERLESS_REDIS above.
+  # Redis — bundled bitnami/redis subchart disabled; replaced by the
+  # operator-managed `Redis` CR (paperless-redis) in apps/redis-operator, wired
+  # via PAPERLESS_REDIS above. (Bitnami also removed docker.io/bitnami/redis from
+  # Docker Hub on 2025-08-28, so the bundled chart wouldn't pull anyway.)
   redis:
     enabled: false
