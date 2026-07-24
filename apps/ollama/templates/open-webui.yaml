@@ -48,10 +48,7 @@ spec:
               value: "{{ .Values.openWebui.auth }}"
             - name: ENABLE_LOGIN_FORM
               value: "{{ .Values.openWebui.loginForm }}"
-            # --- Pocket ID OIDC SSO ---
-            # Read OAuth settings from env on every boot instead of caching them
-            # in the DB after first launch — keeps this GitOps-managed.
-            - name: ENABLE_OAUTH_PERSISTENT_CONFIG
+            - name: ENABLE_PERSISTENT_CONFIG
               value: "false"
             - name: ENABLE_OAUTH_SIGNUP
               value: "true"
