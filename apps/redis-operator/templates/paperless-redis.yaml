@@ -1,0 +1,45 @@
+---
+# ============================================================================
+# Paperless Redis — OT redis-operator standalone Redis (version-LESS name)
+# ============================================================================
+# Runs in the `paperless-ngx` namespace (co-located with the app). The operator
+# creates a ClusterIP Service named exactly after this CR — `paperless-redis` on
+# port 6379 — which is the SAME host Paperless already dials, so no app env
+# change is needed (PAPERLESS_REDIS stays `redis://:<pw>@paperless-redis:6379`).
+# This replaces the old hand-rolled redis Deployment+Service of the same name as
+# an atomic swap.
+#
+# AUTH: reuses the existing sealed secret `paperless-secrets` / `redis-password`
+# (the same key the old in-repo redis used). The operator sets `requirepass`
+# from it; Paperless authenticates with password-only over the default user.
+#
+# PERSISTENCE: none (no `storage` block) — this is Celery's broker/result cache,
+# not a source of truth. Matches the old Deployment's `--save "" --appendonly no`
+# behaviour; a pod restart flushes in-flight tasks, which Paperless re-derives.
+#
+# Upgrade = bump the imageName tag below; the operator rolls the pod.
+# ============================================================================
+apiVersion: redis.redis.opstreelabs.in/v1beta2
+kind: Redis
+metadata:
+  name: paperless-redis
+  namespace: paperless-ngx
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  podSecurityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+  kubernetesConfig:
+    image: quay.io/opstree/redis:v7.4.8
+    imagePullPolicy: IfNotPresent
+    redisSecret:
+      name: paperless-secrets
+      key: redis-password
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
