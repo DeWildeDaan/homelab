@@ -41,13 +41,15 @@ openWebui:
   # then flip to false once SSO is confirmed working, to avoid lockout.
   loginForm: true
 
+  # Open WebUI bundles sentence-transformers + ONNX runtime and loads the RAG
+  # embedding model (all-MiniLM-L6-v2) into RAM on first boot, so 1Gi OOMKills it.
   resources:
     requests:
       cpu: 100m
-      memory: 256Mi
+      memory: 512Mi
     limits:
       cpu: "1"
-      memory: 1Gi
+      memory: 6Gi
 
 ingress:
   host: ollama.home.daandewilde.be

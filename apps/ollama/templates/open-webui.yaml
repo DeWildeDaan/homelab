@@ -85,13 +85,15 @@ spec:
               mountPath: /app/backend/data
           resources:
             {{- toYaml .Values.openWebui.resources | nindent 12 }}
+          # First boot downloads the embedding model from HuggingFace — allow
+          # up to ~10 min before the liveness probe takes over.
           startupProbe:
             httpGet:
               path: /health
               port: http
             initialDelaySeconds: 15
             periodSeconds: 10
-            failureThreshold: 30
+            failureThreshold: 60
           livenessProbe:
             httpGet:
               path: /health
