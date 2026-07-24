@@ -1,0 +1,81 @@
+---
+# ============================================================================
+# Immich Postgres — CloudNativePG cluster (version-LESS name → in-place upgrades)
+# ============================================================================
+# Runs in the `immich` namespace (co-located with the app) so Immich reads its
+# password from the same-namespace `immich-db-superuser` secret and reaches the
+# primary over the in-namespace service `immich-db-rw`.
+#
+# VECTOR EXTENSION: Immich needs VectorChord (vchord). The image below is a
+# CNPG-compatible build bundling VectorChord + pgvector. It's pinned to vchord
+# 0.4.3 — the exact version the old DB runs — so the logical import carries the
+# vector indexes across with NO rebuild. `vchord.so` MUST be in
+# shared_preload_libraries or `CREATE EXTENSION vchord` (replayed by the import)
+# fails; CNPG applies preload params before the bootstrap import runs.
+#
+# PRIVILEGES: Immich connects as the `postgres` superuser (as it does today),
+# which avoids VectorChord's extension-permission pitfalls. enableSuperuserAccess
+# + superuserSecret expose that credential over TCP from our sealed secret.
+#
+# Bootstrapped ONCE by importing the `immich` database from the old hand-rolled
+# `immich-postgres` Deployment. Freeze Immich writes during the import. Strip the
+# import/externalClusters block after the old DB is decommissioned.
+#
+# Future major upgrade = bump the imageName tag (same base OS line) → CNPG runs
+# an in-place pg_upgrade. Take a backup first; it's offline + not PITR-reversible.
+# ============================================================================
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: immich-db
+  namespace: immich
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  instances: 1
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:17-0.4.3
+
+  # Immich uses the postgres superuser; expose it via our sealed credential.
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: immich-db-superuser
+
+  postgresql:
+    shared_preload_libraries:
+      - "vchord.so"
+
+  storage:
+    size: 20Gi
+    storageClass: longhorn
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+
+  bootstrap:
+    initdb:
+      database: immich
+      # CNPG requires a non-superuser owner role; Immich itself still connects as
+      # `postgres`, so this role is just the nominal object owner post-import.
+      owner: immich
+      import:
+        type: microservice
+        databases:
+          - immich
+        source:
+          externalCluster: immich-old
+
+  externalClusters:
+    - name: immich-old
+      connectionParameters:
+        host: immich-postgres          # old DIY Deployment (import source)
+        user: postgres
+        dbname: immich
+        sslmode: prefer                # old postgres has no TLS configured
+      password:
+        name: immich-postgres          # existing SealedSecret (current postgres password)
+        key: password
