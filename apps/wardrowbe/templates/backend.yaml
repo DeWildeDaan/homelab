@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wardrowbe-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "wardrowbe.backend.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "wardrowbe.backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "wardrowbe.backend.labels" . | nindent 8 }}
+    spec:
+      # The image's docker-entrypoint.sh starts as root to remap PUID/PGID and
+      # chown the data dir, then drops to appuser via gosu — so no runAsUser here.
+      initContainers:
+        # Migrations are not run by the image CMD; apply the schema before serving.
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.backendTag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["alembic", "upgrade", "head"]
+          env:
+            {{- include "wardrowbe.dataEnv" . | nindent 12 }}
+      containers:
+        - name: backend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.backendTag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: STORAGE_PATH
+              value: "/data/wardrobe"
+            - name: CORS_ORIGINS
+              value: '["{{ .Values.ingress.url }}"]'
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: SECRET_KEY
+            {{- include "wardrowbe.dataEnv" . | nindent 12 }}
+            {{- include "wardrowbe.oidcEnv" . | nindent 12 }}
+            {{- include "wardrowbe.aiEnv" . | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data/wardrobe
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: wardrowbe-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wardrowbe-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "wardrowbe.backend.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "wardrowbe.backend.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http

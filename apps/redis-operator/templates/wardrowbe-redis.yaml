@@ -1,0 +1,41 @@
+---
+# ============================================================================
+# Wardrowbe Redis — OT redis-operator standalone Redis
+# ============================================================================
+# Runs in the `wardrowbe` namespace (co-located with the app). The operator
+# creates a ClusterIP Service named exactly after this CR — `wardrowbe-redis` on
+# port 6379 — which is the host the backend + worker dial via REDIS_URL.
+#
+# AUTH: password from the app's sealed secret `wardrowbe-secrets` / `redis-password`
+# (created by the wardrowbe Application). The operator sets `requirepass` from it.
+#
+# PERSISTENCE: none (no `storage` block) — this is the arq job broker, not a
+# source of truth; a pod restart just drops in-flight tasks.
+#
+# The `wardrowbe` namespace + the secret are created by the wardrowbe Application;
+# sync-wave + SkipDryRunOnMissingResource let this converge once they exist.
+# ============================================================================
+apiVersion: redis.redis.opstreelabs.in/v1beta2
+kind: Redis
+metadata:
+  name: wardrowbe-redis
+  namespace: wardrowbe
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  podSecurityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+  kubernetesConfig:
+    image: quay.io/opstree/redis:v7.4.8
+    imagePullPolicy: IfNotPresent
+    redisSecret:
+      name: wardrowbe-secrets
+      key: redis-password
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 256Mi

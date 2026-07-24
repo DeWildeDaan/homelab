@@ -1,0 +1,6 @@
+apiVersion: v2
+name: wardrowbe
+description: Custom Helm chart for self-hosted Wardrowbe (AI wardrobe / outfit app)
+type: application
+version: 0.1.0
+appVersion: "1.5.1"

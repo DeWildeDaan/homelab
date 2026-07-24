@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wardrowbe-worker
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "wardrowbe.worker.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "wardrowbe.worker.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "wardrowbe.worker.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: worker
+          image: "{{ .Values.image.repository }}:{{ .Values.image.backendTag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["arq", "app.workers.worker.WorkerSettings"]
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: STORAGE_PATH
+              value: "/data/wardrobe"
+            {{- include "wardrowbe.dataEnv" . | nindent 12 }}
+            {{- include "wardrowbe.aiEnv" . | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data/wardrobe
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: wardrowbe-data

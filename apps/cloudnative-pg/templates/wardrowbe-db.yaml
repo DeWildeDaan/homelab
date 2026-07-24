@@ -1,0 +1,39 @@
+---
+# ============================================================================
+# Wardrowbe Postgres — CloudNativePG cluster
+# ============================================================================
+# Runs in the `wardrowbe` namespace (co-located with the app) so the backend and
+# worker read their password from the same-namespace `wardrowbe-db-app` secret and
+# reach the primary over the in-namespace service `wardrowbe-db-rw`.
+# The `wardrowbe` namespace is created by the wardrowbe Application; sync-wave +
+# SkipDryRunOnMissingResource let this converge before the ns exists.
+# ============================================================================
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: wardrowbe-db
+  namespace: wardrowbe
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
+
+  storage:
+    size: 10Gi
+    storageClass: longhorn
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+  bootstrap:
+    initdb:
+      database: wardrowbe
+      owner: wardrowbe
+      secret:
+        name: wardrowbe-db-app

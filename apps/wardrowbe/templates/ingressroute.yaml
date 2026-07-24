@@ -1,0 +1,19 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: wardrowbe
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "wardrowbe.frontend.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # No pocket-id-* middleware — NextAuth drives the OIDC login itself, so a
+    # single sign-on prompt (like wealthfolio).
+    - match: Host(`{{ .Values.ingress.host }}`)
+      kind: Rule
+      services:
+        - name: wardrowbe-frontend
+          port: 3000
+  tls: {}
