@@ -1,0 +1,39 @@
+---
+# ============================================================================
+# Immich Redis — OT redis-operator standalone Redis (version-LESS name)
+# ============================================================================
+# Runs in the `immich` namespace (co-located with the app). The operator creates
+# a ClusterIP Service named exactly after this CR — `immich-redis` on port 6379 —
+# which Immich reaches via REDIS_HOSTNAME (set in apps/immich/values.yaml).
+#
+# AUTH: none — Immich's previously-bundled Valkey ran without auth, so this keeps
+# the same in-cluster posture and needs no secret. (To add auth later: create a
+# sealed `immich-redis-auth` secret, reference it under kubernetesConfig.redisSecret
+# here, and add REDIS_PASSWORD to the app env.)
+#
+# PERSISTENCE: none (no `storage` block) — Immich's queue is in-flight jobs only,
+# re-discovered on the next scan. Matches the old Valkey-on-emptyDir behaviour.
+#
+# Upgrade = bump the imageName tag below; the operator rolls the pod.
+# ============================================================================
+apiVersion: redis.redis.opstreelabs.in/v1beta2
+kind: Redis
+metadata:
+  name: immich-redis
+  namespace: immich
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  podSecurityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+  kubernetesConfig:
+    image: quay.io/opstree/redis:v7.4.8
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
