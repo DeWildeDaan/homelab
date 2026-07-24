@@ -1,17 +1,8 @@
-# Knobs for the in-chart Postgres (templates/postgres.yaml).
-postgres:
-  image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
-  database: immich
-  username: postgres
-  # Password comes from the SealedSecret in templates/postgres-password-sealedsecret.yaml
-  # (rendered to the `immich-postgres` Secret, key `password`).
-  storage:
-    size: 20Gi
-    # local-path (k3s default) — postgres-on-NFS hits ownership errors because
-    # Synology's all-squash hides the in-container UID. Local-path pins the
-    # PVC to one node; fine since postgres is single-replica anyway.
-    storageClass: longhorn
-    accessMode: ReadWriteOnce
+# Postgres is a CloudNativePG `Cluster` (immich-db) defined in
+# apps/cloudnative-pg/templates/immich-db.yaml — all CNPG clusters live in that
+# one folder. It runs in THIS namespace; Immich connects as the postgres
+# superuser over the in-namespace service immich-db-rw (see DB_* env below).
+# The old hand-rolled postgres Deployment was decommissioned.
 
 # Library PVC — Immich's chart refuses to create this for you, so it lives
 # in templates/library-pvc.yaml. Backed by the Synology over NFS.

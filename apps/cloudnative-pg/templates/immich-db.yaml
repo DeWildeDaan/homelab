@@ -17,10 +17,6 @@
 # which avoids VectorChord's extension-permission pitfalls. enableSuperuserAccess
 # + superuserSecret expose that credential over TCP from our sealed secret.
 #
-# Bootstrapped ONCE by importing the `immich` database from the old hand-rolled
-# `immich-postgres` Deployment. Freeze Immich writes during the import. Strip the
-# import/externalClusters block after the old DB is decommissioned.
-#
 # Future major upgrade = bump the imageName tag (same base OS line) → CNPG runs
 # an in-place pg_upgrade. Take a backup first; it's offline + not PITR-reversible.
 # ============================================================================
@@ -59,23 +55,4 @@ spec:
   bootstrap:
     initdb:
       database: immich
-      # CNPG requires a non-superuser owner role; Immich itself still connects as
-      # `postgres`, so this role is just the nominal object owner post-import.
       owner: immich
-      import:
-        type: microservice
-        databases:
-          - immich
-        source:
-          externalCluster: immich-old
-
-  externalClusters:
-    - name: immich-old
-      connectionParameters:
-        host: immich-postgres          # old DIY Deployment (import source)
-        user: postgres
-        dbname: immich
-        sslmode: prefer                # old postgres has no TLS configured
-      password:
-        name: immich-postgres          # existing SealedSecret (current postgres password)
-        key: password
