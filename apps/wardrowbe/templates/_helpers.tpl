@@ -43,15 +43,13 @@ k8s $(VAR) interpolation from secret-backed vars) and the AI settings.
     secretKeyRef:
       name: {{ .Values.db.appSecret }}
       key: password
-- name: REDIS_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.secrets.name }}
-      key: redis-password
 - name: DATABASE_URL
   value: "postgresql+asyncpg://{{ .Values.db.user }}:$(DB_PASSWORD)@{{ .Values.db.host }}:5432/{{ .Values.db.name }}"
+# wardrowbe's Redis URL parser (app/workers/settings.py) splits on ":" and does
+# NOT support auth in the URL — so Redis runs without a password (ClusterIP,
+# in-namespace only) and we use a plain host:port/db URL.
 - name: REDIS_URL
-  value: "redis://:$(REDIS_PASSWORD)@{{ .Values.redis.host }}:6379/0"
+  value: "redis://{{ .Values.redis.host }}:6379/0"
 {{- end -}}
 
 {{- define "wardrowbe.aiEnv" -}}

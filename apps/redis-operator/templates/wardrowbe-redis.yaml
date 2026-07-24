@@ -6,8 +6,9 @@
 # creates a ClusterIP Service named exactly after this CR — `wardrowbe-redis` on
 # port 6379 — which is the host the backend + worker dial via REDIS_URL.
 #
-# AUTH: password from the app's sealed secret `wardrowbe-secrets` / `redis-password`
-# (created by the wardrowbe Application). The operator sets `requirepass` from it.
+# AUTH: none. wardrowbe's Redis URL parser (app/workers/settings.py) can't parse
+# a password out of REDIS_URL, so we run without `requirepass`. Safe enough: this
+# is a ClusterIP reachable only in-cluster and holds no source-of-truth data.
 #
 # PERSISTENCE: none (no `storage` block) — this is the arq job broker, not a
 # source of truth; a pod restart just drops in-flight tasks.
@@ -30,9 +31,6 @@ spec:
   kubernetesConfig:
     image: quay.io/opstree/redis:v7.4.8
     imagePullPolicy: IfNotPresent
-    redisSecret:
-      name: wardrowbe-secrets
-      key: redis-password
     resources:
       requests:
         cpu: 50m
