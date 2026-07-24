@@ -1,0 +1,65 @@
+---
+# ============================================================================
+# Paperless Postgres — CloudNativePG cluster (version-LESS name)
+# ============================================================================
+# Runs in the `paperless-ngx` namespace (co-located with the app) so Paperless
+# reads its password from the same-namespace `paperless-db-app` secret and reaches
+# the primary over the in-namespace service `paperless-db-rw`.
+#
+# The name has NO major version in it (unlike the retired paperless-db-16), so
+# future major upgrades are done IN-PLACE — just bump the imageName tag below
+# (e.g. :18 → :19) and CloudNativePG performs an offline `pg_upgrade` on the same
+# cluster/PVC. Caveats for in-place: keep the SAME base-OS image line across the
+# bump, and take a backup first (an in-place upgrade is not PITR-reversible).
+#
+# This cluster is bootstrapped ONCE by importing the `paperless` database from the
+# previous cluster `paperless-db-16` (microservice import = single DB, logical
+# dump/restore, cross-version 16→18 safe). Freeze Paperless writes during the
+# import. Strip the import/externalClusters block after paperless-db-16 is gone.
+# ============================================================================
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: paperless-db
+  namespace: paperless-ngx
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
+
+  storage:
+    size: 20Gi
+    storageClass: longhorn
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+  bootstrap:
+    initdb:
+      database: paperless
+      owner: paperless
+      secret:
+        name: paperless-db-app
+      import:
+        type: microservice
+        databases:
+          - paperless
+        source:
+          externalCluster: paperless-db-16
+
+  externalClusters:
+    - name: paperless-db-16
+      connectionParameters:
+        host: paperless-db-16-rw        # current live cluster (import source)
+        user: paperless
+        dbname: paperless
+        sslmode: require
+      password:
+        name: paperless-db-app          # paperless role's password (same secret)
+        key: password
