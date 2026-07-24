@@ -17,6 +17,11 @@ spec:
       labels:
         {{- include "wardrowbe.worker.labels" . | nindent 8 }}
     spec:
+      # Run as the image's appuser (uid 1000) — see backend.yaml. Avoids the
+      # root-only chown of /data/wardrobe that fails on the root_squash NFS export.
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
         - name: worker
           image: "{{ .Values.image.repository }}:{{ .Values.image.backendTag }}"

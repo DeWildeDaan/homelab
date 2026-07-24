@@ -17,8 +17,13 @@ spec:
       labels:
         {{- include "wardrowbe.backend.labels" . | nindent 8 }}
     spec:
-      # The image's docker-entrypoint.sh starts as root to remap PUID/PGID and
-      # chown the data dir, then drops to appuser via gosu — so no runAsUser here.
+      # Run as the image's appuser (uid 1000). The entrypoint only tries to
+      # chown /data/wardrobe when started as root, and that chown fails on the
+      # root_squash NFS export. The dir is 0777, so uid 1000 writes fine.
+      # No fsGroup — it would trigger its own (failing) chown on the NFS mount.
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
       initContainers:
         # Migrations are not run by the image CMD; apply the schema before serving.
         - name: migrate
