@@ -3,7 +3,7 @@ crowdsec:
 
   image:
     repository: ghcr.io/crowdsecurity/crowdsec
-    tag: "v1.6.10"
+    tag: "v1.7.8"
 
   # ────────────────────────────────────────────────
   # LAPI — central API, stores decisions
