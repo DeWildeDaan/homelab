@@ -62,8 +62,11 @@ crowdsec:
           crowdsecurity/traefik
           crowdsecurity/http-cve
           crowdsecurity/base-http-scenarios
-          crowdsecurity/sshd
-          crowdsecurity/postgresql
+          crowdsecurity/ssh-time-based-bf
+          crowdsecurity/pgsql
+          LePresidente/adguardhome-bf
+          Dominic-Wagner/vaultwarden-bf
+          LePresidente/jellyfin
 
     resources:
       requests:
