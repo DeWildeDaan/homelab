@@ -3,7 +3,7 @@ crowdsec:
 
   image:
     repository: ghcr.io/crowdsecurity/crowdsec
-    tag: "1.6.10"
+    tag: "v1.6.10"
 
   # ────────────────────────────────────────────────
   # LAPI — central API, stores decisions
@@ -51,7 +51,7 @@ crowdsec:
   # ────────────────────────────────────────────────
   agent:
     acquisition:
-      - namespace: traefik
+      - namespace: kube-system
         podName: traefik-*
         program: traefik
 
