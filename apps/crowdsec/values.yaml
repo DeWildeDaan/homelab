@@ -1,0 +1,84 @@
+crowdsec:
+  container_runtime: containerd
+
+  image:
+    repository: ghcr.io/crowdsecurity/crowdsec
+    tag: "1.6.10"
+
+  # ────────────────────────────────────────────────
+  # LAPI — central API, stores decisions
+  # ────────────────────────────────────────────────
+  lapi:
+    replicas: 1
+
+    env:
+      - name: BOUNCER_KEY_traefik
+        valueFrom:
+          secretKeyRef:
+            name: crowdsec-keys
+            key: BOUNCER_KEY_traefik
+      - name: ENROLL_KEY
+        valueFrom:
+          secretKeyRef:
+            name: crowdsec-keys
+            key: ENROLL_KEY
+      - name: ENROLL_INSTANCE_NAME
+        value: 'homelab-k8s-cluster'
+      - name: ENROLL_TAGS
+        value: 'k8s homelab'
+
+    persistentVolume:
+      enabled: true
+      storageClassName: longhorn
+      size: 2Gi
+      accessModes:
+        - ReadWriteOnce
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+
+    service:
+      type: ClusterIP
+      port: 8080
+
+  # ────────────────────────────────────────────────
+  # Agent — DaemonSet, reads node logs
+  # ────────────────────────────────────────────────
+  agent:
+    acquisition:
+      - namespace: traefik
+        podName: traefik-*
+        program: traefik
+
+    env:
+      - name: COLLECTIONS
+        value: "crowdsecurity/traefik crowdsecurity/linux"
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+  # ────────────────────────────────────────────────
+  # Global config — allow agent and bouncer CIDRs
+  # ────────────────────────────────────────────────
+  config:
+    config.yaml.local: |
+      api:
+        server:
+          auto_registration:
+            enabled: true
+            token: "${REGISTRATION_TOKEN}"
+            allowed_ranges:
+              - "127.0.0.1/32"
+              - "10.0.0.0/8"
+              - "172.16.0.0/12"
+              - "192.168.0.0/16"
