@@ -51,10 +51,6 @@ vaultwarden:
     type: ClusterIP
     port: 80
 
-  # -- Websocket notifications (used by browser extensions)
-  websocket:
-    enabled: true
-
   # -- Security context
   podSecurityContext:
     fsGroup: 1000

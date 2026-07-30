@@ -12,10 +12,4 @@ spec:
       services:
         - name: vaultwarden
           port: 80
-    # WebSocket endpoint for real-time notifications (browser extensions)
-    - match: Host(`vaultwarden.home.daandewilde.be`) && PathPrefix(`/notifications/hub`)
-      kind: Rule
-      services:
-        - name: vaultwarden
-          port: 3012
   tls: {}
