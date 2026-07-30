@@ -22,6 +22,8 @@ spec:
           value: {{ .Values.crowdsec.lapiUrl | quote }}
         - name: CONFIG_INSTANCE_LAPI_AUTH_USERNAME
           value: crowdsec-web-ui
+        - name: CONFIG_AUTH_OIDC_SCOPE
+          value: openid profile emai groups
         - name: CONFIG_AUTH_OIDC_ADMIN_GROUPS
           value: {{ .Values.oidc.adminGroups | toJson | quote }}
         - name: CONFIG_AUTH_OIDC_READ_ONLY_GROUPS
