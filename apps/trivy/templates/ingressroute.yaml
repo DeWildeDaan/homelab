@@ -9,10 +9,12 @@ spec:
   routes:
     - match: Host(`trivy.home.daandewilde.be`)
       kind: Rule
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: kube-system
+        - name: pocket-id-admins
+          namespace: kube-system
       services:
         - name: {{ .Release.Name }}-dashboard
           port: 8900
-      middlewares:
-        - name: pocket-id-admins
-          namespace: kube-system
   tls: {}

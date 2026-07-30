@@ -10,6 +10,8 @@ spec:
     - match: Host(`{{ .Values.ingress.host }}`)
       kind: Rule
       middlewares:
+        - name: crowdsec-bouncer
+          namespace: kube-system
         - name: pocket-id-admins
           namespace: kube-system
       services:

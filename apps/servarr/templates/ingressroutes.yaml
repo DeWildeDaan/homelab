@@ -16,14 +16,36 @@ so the service name matches the app name 1:1.
 }}
 
 {{- $middlewares := dict
-  "sonarr"      "pocket-id-admins"
-  "radarr"      "pocket-id-admins"
-  "prowlarr"    "pocket-id-admins"
-  "qbittorrent" "pocket-id-admins"
-  "jellyseerr"  ""
-  "jellyfin"    ""
-  "bazarr"      "pocket-id-admins"
-  "maintainerr" "pocket-id-admins"
+  "sonarr" (list
+    (dict "name" "crowdsec-bouncer" "namespace" "kube-system")
+    (dict "name" "pocket-id-admins" "namespace" "kube-system")
+  )
+  "radarr" (list
+    (dict "name" "crowdsec-bouncer" "namespace" "kube-system")
+    (dict "name" "pocket-id-admins" "namespace" "kube-system")
+  )
+  "prowlarr" (list
+    (dict "name" "crowdsec-bouncer" "namespace" "kube-system")
+    (dict "name" "pocket-id-admins" "namespace" "kube-system")
+  )
+  "qbittorrent" (list
+    (dict "name" "crowdsec-bouncer" "namespace" "kube-system")
+    (dict "name" "pocket-id-admins" "namespace" "kube-system")
+  )
+  "jellyseerr" (list
+    (dict "name" "crowdsec-bouncer" "namespace" "kube-system")
+  )
+  "jellyfin" (list
+    (dict "name" "crowdsec-bouncer" "namespace" "kube-system")
+  )
+  "bazarr" (list
+    (dict "name" "crowdsec-bouncer" "namespace" "kube-system")
+    (dict "name" "pocket-id-admins" "namespace" "kube-system")
+  )
+  "maintainerr" (list
+    (dict "name" "crowdsec-bouncer" "namespace" "kube-system")
+    (dict "name" "pocket-id-admins" "namespace" "kube-system")
+  )
 }}
 
 {{- range $name, $port := $apps }}
@@ -41,8 +63,10 @@ spec:
       kind: Rule
       {{- with get $middlewares $name }}
       middlewares:
-        - name: {{ . }}
-          namespace: kube-system
+      {{- range . }}
+        - name: {{ .name }}
+          namespace: {{ .namespace }}
+      {{- end }}
       {{- end }}
       services:
         - name: {{ $name }}

@@ -10,6 +10,9 @@ spec:
   routes:
     - match: Host(`auth.home.daandewilde.be`)
       kind: Rule
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: kube-system
       services:
         - name: pocketid-pocket-id
           port: 80

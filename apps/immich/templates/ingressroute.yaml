@@ -9,6 +9,9 @@ spec:
   routes:
     - match: Host(`{{ .Values.ingress.host }}`)
       kind: Rule
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: kube-system
       services:
         - name: immich-server
           port: 2283

@@ -9,10 +9,11 @@ spec:
   entryPoints:
     - websecure
   routes:
-    # No pocket-id-* middleware — NextAuth drives the OIDC login itself, so a
-    # single sign-on prompt (like wealthfolio).
     - match: Host(`{{ .Values.ingress.host }}`)
       kind: Rule
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: kube-system
       services:
         - name: wardrowbe-frontend
           port: 3000

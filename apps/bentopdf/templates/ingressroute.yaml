@@ -10,6 +10,8 @@ spec:
     - match: Host(`pdf.home.daandewilde.be`)
       kind: Rule
       middlewares:
+        - name: crowdsec-bouncer
+          namespace: kube-system
         - name: pocket-id-users
           namespace: kube-system
       services:
