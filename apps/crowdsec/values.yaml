@@ -56,9 +56,7 @@ crowdsec:
         filenames:
           - /var/log/pods/kube-system_traefik-*_*/traefik/*.log
         labels:
-          type: containerd
-        program: traefik
-        poll_without_inotify: true
+          type: traefik
 
     env:
       - name: COLLECTIONS
