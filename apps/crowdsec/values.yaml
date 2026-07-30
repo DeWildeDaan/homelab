@@ -57,7 +57,13 @@ crowdsec:
 
     env:
       - name: COLLECTIONS
-        value: "crowdsecurity/traefik crowdsecurity/linux"
+        value: >-
+          crowdsecurity/linux
+          crowdsecurity/traefik
+          crowdsecurity/http-cve
+          crowdsecurity/base-http-scenarios
+          crowdsecurity/sshd
+          crowdsecurity/postgresql
 
     resources:
       requests:
