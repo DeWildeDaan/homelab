@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: theduffman85/crowdsec-web-ui
+  repository: ghcr.io/theduffman85/crowdsec-web-ui
   tag: latest
   pullPolicy: IfNotPresent
 
