@@ -62,7 +62,7 @@ crowdsec:
           crowdsecurity/traefik
           crowdsecurity/http-cve
           crowdsecurity/base-http-scenarios
-          crowdsecurity/ssh-time-based-bf
+          crowdsecurity/sshd
           crowdsecurity/pgsql
           LePresidente/adguardhome-bf
           Dominic-Wagner/vaultwarden-bf
