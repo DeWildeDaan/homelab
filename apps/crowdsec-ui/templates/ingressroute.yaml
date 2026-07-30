@@ -6,7 +6,7 @@ spec:
   entryPoints:
   - websecure
   routes:
-  - match: Host(`crowdsec-web-ui.home.daandewilde.be`)
+  - match: Host(`crowdsec.home.daandewilde.be`)
     kind: Rule
     middlewares:
       - name: crowdsec-bouncer
