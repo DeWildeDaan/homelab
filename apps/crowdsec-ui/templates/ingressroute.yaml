@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: crowdsec-web-ui
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`crowdsec-web-ui.home.daandewilde.be`)
+    kind: Rule
+    middlewares:
+      - name: crowdsec-bouncer
+        namespace: kube-system
+    services:
+    - name: crowdsec-web-ui
+      port: 8080
+  tls: {}

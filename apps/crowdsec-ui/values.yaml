@@ -1,0 +1,46 @@
+replicaCount: 1
+
+image:
+  repository: theduffman85/crowdsec-web-ui
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8080
+
+ingress:
+  enabled: true
+  host: crowdsec.home.daandewilde.be
+
+persistence:
+  enabled: true
+  storageClass: longhorn
+  size: 2Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+crowdsec:
+  lapiUrl:
+    http://crowdsec-service.crowdsec.svc.cluster.local:8080
+
+oidc:
+  enabled: true
+  issuer:
+    https://auth.home.daandewilde.be
+  clientIdSecret:
+    crowdsec-web-ui-secret
+  clientIdKey:
+    oidc-client-id
+  clientSecretKey:
+    oidc-client-secret
+  adminGroups:
+    - admin
+  userGroups:
+    - non_admin

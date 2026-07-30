@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crowdsec-web-ui
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: crowdsec-web-ui
+  template:
+    metadata:
+      labels:
+        app: crowdsec-web-ui
+    spec:
+      containers:
+      - name: crowdsec-web-ui
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: CONFIG_INSTANCE_LAPI_URL
+          value: {{ .Values.crowdsec.lapiUrl | quote }}
+        - name: CONFIG_INSTANCE_LAPI_AUTH_USERNAME
+          value: crowdsec-web-ui
+        - name: CONFIG_INSTANCE_LAPI_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.oidc.clientIdSecret }}
+              key: crowdsec-lapi-key
+        - name: CONFIG_AUTH_OIDC_ISSUER_URL
+          value: {{ .Values.oidc.issuer | quote }}
+        - name: CONFIG_AUTH_OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.oidc.clientIdSecret }}
+              key: oidc-client-id
+        - name: CONFIG_AUTH_OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.oidc.clientIdSecret }}
+              key: oidc-client-secret
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: crowdsec-web-ui-data
