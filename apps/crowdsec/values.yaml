@@ -57,7 +57,7 @@ crowdsec:
 
     env:
       - name: COLLECTIONS
-        value: "crowdsecurity/traefik crowdsecurity/linux"
+        value: "crowdsecurity/traefik crowdsecurity/linux LePresidente/jellyfin-bf Dominic-Wagner/vaultwarden-bf LePresidente/adguardhome-bf"
 
     resources:
       requests:
