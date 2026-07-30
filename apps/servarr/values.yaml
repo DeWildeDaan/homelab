@@ -176,7 +176,7 @@ qbittorrent:
         gluetun:
           image:
             repository: ghcr.io/qdm12/gluetun
-            tag: v3.41.1
+            tag: v3.41.2
           env:
             VPN_SERVICE_PROVIDER: mullvad
             VPN_TYPE: wireguard
@@ -387,7 +387,7 @@ maintainerr:
         app:
           image:
             repository: ghcr.io/maintainerr/maintainerr
-            tag: 3.18.0
+            tag: 3.20.0
           env:
             TZ: *tz
 
