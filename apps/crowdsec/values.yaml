@@ -50,11 +50,13 @@ crowdsec:
   # Agent — DaemonSet, reads node logs
   # ────────────────────────────────────────────────
   agent:
-    hostVarLog: false
+    hostVarLog: true
     additionalAcquisition:
-      - source: kubernetes
-        namespace: kube-system
-        podName: traefik-*
+      - source: file
+        filenames:
+          - /var/log/pods/kube-system_traefik-*_*/traefik/*.log
+        labels:
+          type: containerd
         program: traefik
         poll_without_inotify: true
 
