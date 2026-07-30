@@ -13,5 +13,5 @@ spec:
         namespace: kube-system
     services:
     - name: crowdsec-web-ui
-      port: 8080
+      port: 3000
   tls: {}

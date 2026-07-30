@@ -16,7 +16,7 @@ spec:
       - name: crowdsec-web-ui
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         ports:
-        - containerPort: 8080
+        - containerPort: 3000
         env:
         - name: CONFIG_INSTANCE_LAPI_URL
           value: {{ .Values.crowdsec.lapiUrl | quote }}
