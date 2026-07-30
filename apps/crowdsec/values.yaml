@@ -64,8 +64,8 @@ crowdsec:
           crowdsecurity/base-http-scenarios
           crowdsecurity/sshd
           crowdsecurity/pgsql
-          LePresidente/adguardhome-bf
-          Dominic-Wagner/vaultwarden-bf
+          LePresidente/adguardhome
+          Dominic-Wagner/vaultwarden
           LePresidente/jellyfin
 
     resources:
