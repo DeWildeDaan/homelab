@@ -51,7 +51,12 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 10
           resources:
-            {{- toYaml .Values.hub.resources | nindent 12 }}
+            requests:
+              cpu: {{ .Values.agent.resources.requests.cpu }}
+              memory: {{ .Values.agent.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.agent.resources.limits.cpu }}
+              memory: {{ .Values.agent.resources.limits.memory }}
       volumes:
         - name: data
           persistentVolumeClaim:
