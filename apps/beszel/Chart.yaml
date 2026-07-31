@@ -1,0 +1,5 @@
+apiVersion: v2
+name: beszel
+description: Lightweight server monitoring hub with Docker stats, historical data, and alerts
+type: application
+version: 1.0.0

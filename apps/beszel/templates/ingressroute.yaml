@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: beszel-hub
+  namespace: beszel
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ .Values.ingress.host }}`)
+      kind: Rule
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: kube-system
+      services:
+        - name: beszel-hub
+          port: {{ .Values.hub.service.port }}
+  tls: {}
