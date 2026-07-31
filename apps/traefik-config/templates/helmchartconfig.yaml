@@ -9,6 +9,13 @@ spec:
       spec:
         loadBalancerIP: {{ .Values.traefik.loadBalancerIP }}
         externalTrafficPolicy: Local
+    logs:
+      access:
+        enabled: true
+        format: json
+        fields:
+          headers:
+            defaultMode: keep
     ports:
       web:
         redirectTo:
