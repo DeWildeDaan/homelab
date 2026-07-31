@@ -9,7 +9,7 @@ hub:
   env:
     APP_URL: "https://beszel.home.daandewilde.be"
     USER_CREATION: "false"
-    DISABLE_PASSWORD_AUTH: "false"
+    DISABLE_PASSWORD_AUTH: "true"
 
   resources:
     requests:
