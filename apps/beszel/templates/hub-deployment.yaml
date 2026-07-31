@@ -51,7 +51,12 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 10
           resources:
-{{ toYaml .Values.hub.resources | indent 12 }}
+            requests:
+              cpu: {{ .Values.hub.resources.requests.cpu }}
+              memory: {{ .Values.hub.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.hub.resources.limits.cpu }}
+              memory: {{ .Values.hub.resources.limits.memory }}
       volumes:
         - name: data
           persistentVolumeClaim:
