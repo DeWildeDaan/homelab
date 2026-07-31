@@ -94,3 +94,34 @@ crowdsec:
               - "10.0.0.0/8"
               - "172.16.0.0/12"
               - "192.168.0.0/16"
+
+  # ────────────────────────────────────────────────
+  # AppSec — WAF component (NEW)
+  # ────────────────────────────────────────────────
+  appsec:
+    enabled: true
+
+    acquisitions:
+      - source: appsec
+        listen_addr: "0.0.0.0:7422"
+        path: /
+        appsec_configs:
+          - crowdsecurity/appsec-default
+          - crowdsecurity/crs
+        labels:
+          type: appsec
+
+    env:
+      - name: COLLECTIONS
+        value: >-
+          crowdsecurity/appsec-virtual-patching
+          crowdsecurity/appsec-crs
+          crowdsecurity/appsec-generic-rules
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
