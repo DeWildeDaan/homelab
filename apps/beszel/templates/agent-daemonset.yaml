@@ -36,6 +36,8 @@ spec:
               value: {{ .Values.agent.env.LISTEN | quote }}
             - name: HUB_URL
               value: {{ .Values.agent.env.HUB_URL | quote }}
+            - name: DOCKER_HOST
+              value: "unix:///var/run/docker.sock"
             - name: KEY
               valueFrom:
                 secretKeyRef:
@@ -63,7 +65,7 @@ spec:
       volumes:
         - name: docker-sock
           hostPath:
-            path: /var/run/docker.sock
+            path: /run/k3s/containerd/containerd.sock
             type: Socket
         - name: host-root
           hostPath:
