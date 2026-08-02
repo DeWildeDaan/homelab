@@ -4,11 +4,11 @@ metadata:
   name: crowdsec-appsec-custom-config
   namespace: crowdsec
 data:
-  jellyfin.yaml: |
+  jellyfin-exceptions.yaml: |
     name: custom/jellyfin-exceptions
     pre_eval:
-      - filter: IsInBand == true && req.URL.Path startsWith "/Sessions/Playing/"
+      - filter: IsInBand == true && req.URL.Host == "jellyfin.home.daandewilde.be" && req.URL.Path startsWith "/Sessions/Playing/"
         apply:
-          - RemoveInBandRuleByID("932370")
-          - RemoveInBandRuleByID("949110")
-          - RemoveInBandRuleByID("980170")
+          - RemoveInBandRuleByID(932370)
+          - RemoveInBandRuleByID(949110)
+          - RemoveInBandRuleByID(980170)
