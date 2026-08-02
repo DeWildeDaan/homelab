@@ -5,13 +5,10 @@ metadata:
   namespace: crowdsec
 data:
   jellyfin.yaml: |
-    name: custom/jellyfin-appsec-config
-    description: "Jellyfin-specific AppSec config with false positive exceptions"
-    default_remediation: ban
-    outofband_rules:
-      - crowdsecurity/crs
-    inband_rules:
-      - crowdsecurity/vpatch-*
-    on_load:
-      - apply:
-          - SetRemediationByTag("crowdsecurity/crs", "pass", "custom/jellyfin-playback-exception")
+    name: custom/jellyfin-exceptions
+    pre_eval:
+      - filter: IsInBand == true && req.URL.Path startsWith "/Sessions/Playing/"
+        apply:
+          - RemoveInBandRuleByID("932370")
+          - RemoveInBandRuleByID("949110")
+          - RemoveInBandRuleByID("980170")

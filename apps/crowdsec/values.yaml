@@ -108,7 +108,7 @@ crowdsec:
         appsec_configs:
           - crowdsecurity/appsec-default
           - crowdsecurity/crs
-          - custom/jellyfin-appsec-config
+          - custom/jellyfin-exceptions
         labels:
           type: appsec
 
@@ -120,13 +120,13 @@ crowdsec:
           crowdsecurity/appsec-generic-rules
 
     extraVolumes:
-      - name: custom-appsec-rules
+      - name: crowdsec-appsec-custom-config
         configMap:
-          name: crowdsec-appsec-custom-rules
+          name: crowdsec-appsec-custom-config
 
     extraVolumeMounts:
-      - name: custom-appsec-rules
-        mountPath: /etc/crowdsec/appsec-rules/custom/
+      - name: crowdsec-appsec-custom-config
+        mountPath: /etc/crowdsec/appsec-configs/custom/
         readOnly: true
 
     resources:
