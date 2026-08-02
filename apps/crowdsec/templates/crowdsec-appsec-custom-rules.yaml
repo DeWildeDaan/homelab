@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crowdsec-appsec-custom-rules
+  namespace: crowdsec
+data:
+  jellyfin-exceptions.yaml: |
+    name: custom/jellyfin-playback-exception
+    description: "Whitelist Jellyfin playback progress endpoint from RCE false positive"
+    rules:
+      - and:
+          - zones:
+              - URI
+            transform:
+              - lowercase
+            match:
+              type: startswith
+              value: "/sessions/playing/"
+    id: 1000
+    labels:
+      type: whitelist
