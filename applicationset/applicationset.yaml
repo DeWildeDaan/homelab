@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: homelab
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      directories:
+      - path: apps/*
+      repoURL: https://github.com/DeWildeDaan/homelab
+      revision: HEAD
+  template:
+    metadata:
+      name: '{{path.basename}}'
+    spec:
+      destination:
+        namespace: '{{path.basename}}'
+        server: https://kubernetes.default.svc
+      ignoreDifferences:
+      - group: ""
+        jsonPointers:
+        - /spec/volumeName
+        - /spec/storageClassName
+        - /spec/volumeMode
+        - /spec/dataSource
+        kind: PersistentVolumeClaim
+      project: default
+      source:
+        path: '{{path}}'
+        repoURL: https://github.com/DeWildeDaan/homelab
+        targetRevision: HEAD
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+        - ServerSideApply=true
