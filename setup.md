@@ -244,90 +244,17 @@ kubectl get pods -n argocd
 kubectl get secret argocd-initial-admin-secret -n argocd \
   -o jsonpath="{.data.password}" | base64 -d && echo
 ```
-
----
-
-## Step 11 — Expose ArgoCD via Traefik
-
-Patch ArgoCD to run in insecure mode (let Traefik handle TLS):
-```bash
-kubectl patch configmap argocd-cmd-params-cm -n argocd \
-  --type merge \
-  -p '{"data":{"server.insecure":"true"}}'
-
-kubectl rollout restart deploy/argocd-server -n argocd
-```
-
-Create the IngressRoute (using nip.io for local DNS):
-```bash
-kubectl apply -f - <<EOF
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: argocd
-  namespace: argocd
-spec:
-  entryPoints:
-    - web
-  routes:
-    - match: Host(\`argocd.192.168.4.21.nip.io\`)
-      kind: Rule
-      services:
-        - name: argocd-server
-          port: 80
-EOF
-```
-
 Access ArgoCD at: `http://argocd.192.168.4.21.nip.io`
 - Username: `admin`
 - Password: from Step 10
 
 ---
 
-## Step 12 — Create ApplicationSet
+## Step 11 — Apply ArgoCD bootstrap root application
 
 ```bash
-kubectl apply -f - <<EOF
-apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
-metadata:
-  name: homelab
-  namespace: argocd
-spec:
-  generators:
-    - git:
-        repoURL: https://github.com/DeWildeDaan/homelab
-        revision: HEAD
-        directories:
-          - path: apps/*
-  template:
-    metadata:
-      name: '{{path.basename}}'
-    spec:
-      project: default
-      source:
-        repoURL: https://github.com/DeWildeDaan/homelab
-        targetRevision: HEAD
-        path: '{{path}}'
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: '{{path.basename}}'
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-          # Server-side apply — required for operators that ship very large CRDs
-          # (e.g. CloudNativePG's `clusters.postgresql.cnpg.io` is >256 KB).
-          # Client-side apply stores a last-applied-configuration annotation that
-          # exceeds Kubernetes' 262144-byte metadata limit and the CRD fails to
-          # apply. SSA doesn't write that annotation. Safe for all other apps too.
-          - ServerSideApply=true
-EOF
+kubectl apply -f ./argocd-bootstrap/root-argocd-app.yaml -n argocd
 ```
-
-This will automatically create an ArgoCD Application for every subdirectory inside `apps/` in your repo.
 
 ---
 
