@@ -35,6 +35,33 @@ curl -sS -o /dev/null -w '%{http_code}\n' https://argocd.home.daandewilde.be
 Browser: `https://argocd.home.daandewilde.be`, login `admin` + the bootstrap
 password.
 
+## ArgoCD Extensions
+
+ArgoCD extensions are installed via initContainers on the `argocd-server` deployment.
+Currently installed:
+
+- **argocd-trivy-extension** — Trivy vulnerability scanning integration
+- **argo-trivy-insights** — Enhanced Trivy insights for ArgoCD
+
+### Applying extension patches
+
+Since ArgoCD is installed manually (not GitOps-managed), extensions must be patched
+directly on the deployment. **⚠️ These patches will be lost on ArgoCD upgrade.**
+
+To apply/update extensions:
+
+```bash
+kubectl patch deployment argocd-server -n argocd \
+  --type merge \
+  --patch-file argocd-extensions-patch.yaml
+```
+
+To verify extensions were installed:
+
+```bash
+kubectl get deployment argocd-server -n argocd -o yaml | grep -A 20 initContainers
+```
+
 ## Cleaning up the old nip.io route
 
 The original `argocd` IngressRoute (created in `setup.md` Step 11, hostname
