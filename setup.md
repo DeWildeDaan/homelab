@@ -244,9 +244,6 @@ kubectl get pods -n argocd
 kubectl get secret argocd-initial-admin-secret -n argocd \
   -o jsonpath="{.data.password}" | base64 -d && echo
 ```
-Access ArgoCD at: `http://argocd.192.168.4.21.nip.io`
-- Username: `admin`
-- Password: from Step 10
 
 ---
 

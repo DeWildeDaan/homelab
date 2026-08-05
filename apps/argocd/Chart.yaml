@@ -1,5 +1,10 @@
 apiVersion: v2
 name: argocd
-description: Traefik IngressRoute for the ArgoCD UI on argocd.home.daandewilde.be
+description: ArgoCD managed by ArgoCD
 type: application
-version: 0.1.0
+version: 1.0.0
+
+dependencies:
+  - name: argo-cd
+    version: "10.3.0"
+    repository: https://argoproj.github.io/argo-helm

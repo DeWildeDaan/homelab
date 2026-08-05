@@ -1,3 +1,4 @@
+# manually applied -> deploys appset -> deploys all apps + lets ArgoCD self manage
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
