@@ -31,3 +31,4 @@ argo-cd:
   redis:
     serviceAccount:
       create: true
+      automountServiceAccountToken: false
