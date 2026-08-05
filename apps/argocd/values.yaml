@@ -28,3 +28,6 @@ argo-cd:
     replicas: 2
   server:
     replicas: 2
+  redis:
+    serviceAccount:
+      create: true
