@@ -24,6 +24,11 @@ argo-cd:
           - email
           - groups
 
+    rbac:
+      policy.default: role:readonly
+      policy.csv: |
+        g, admin, role:admin
+
   controller:
     replicas: 2
   applicationSet:
