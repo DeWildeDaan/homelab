@@ -9,7 +9,7 @@ crowdsec:
   # LAPI — central API, stores decisions
   # ────────────────────────────────────────────────
   lapi:
-    replicas: 1
+    replicas: 2
 
     env:
       - name: BOUNCER_KEY_traefik
@@ -28,11 +28,12 @@ crowdsec:
         value: 'k8s homelab'
 
     persistentVolume:
-      enabled: true
-      storageClassName: longhorn
-      size: 2Gi
-      accessModes:
-        - ReadWriteOnce
+      data:
+        enabled: true
+        storageClassName: longhorn
+      config:
+        enabled: true
+        storageClassName: longhorn
 
     resources:
       requests:
@@ -100,6 +101,8 @@ crowdsec:
   # ────────────────────────────────────────────────
   appsec:
     enabled: true
+
+    replicas: 2
 
     acquisitions:
       - source: appsec
