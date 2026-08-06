@@ -31,9 +31,13 @@ crowdsec:
       data:
         enabled: true
         storageClassName: longhorn
+        accessModes:
+          - ReadWriteMany
       config:
         enabled: true
         storageClassName: longhorn
+        accessModes:
+          - ReadWriteMany
 
     resources:
       requests:
