@@ -62,10 +62,26 @@ crowdsec:
           - /var/log/pods/kube-system_traefik-*_*/traefik/*.log
         labels:
           type: traefik
+      - source: file
+        filenames:
+          - /var/log/auth.log
+          - /var/log/sshd.log
+        labels:
+          type: syslog
+      - source: file
+        filenames:
+          - /var/log/pods/vaultwarden_vaultwarden-*_*/*/*.log
+        labels:
+          type: vaultwarden
+      - source: file
+        filenames:
+          - /var/log/pods/servarr_jellyfin-*_*/*/*.log
+        labels:
+          type: jellyfin
 
     env:
       - name: COLLECTIONS
-        value: "crowdsecurity/linux crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios crowdsecurity/sshd crowdsecurity/pgsql LePresidente/adguardhome Dominic-Wagner/vaultwarden LePresidente/jellyfin"
+        value: "crowdsecurity/linux crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios crowdsecurity/sshd Dominic-Wagner/vaultwarden LePresidente/jellyfin"
 
     resources:
       requests:
