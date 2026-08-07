@@ -35,15 +35,15 @@ argo-cd:
     replicas: 2
   server:
     replicas: 2
-    extensions:
-      enabled: true
-      extensionList:
-        - name: trivy-insights
-          env:
-            - name: EXTENSION_URL
-              value: https://github.com/DeWildeDaan/argo-trivy-insights/releases/latest/download/extension-trivy-insights.tar.gz
-            - name: EXTENSION_CHECKSUM_URL
-              value: https://github.com/DeWildeDaan/argo-trivy-insights/releases/latest/download/extension-trivy-insights_checksums.txt
+    # extensions:
+    #   enabled: true
+    #   extensionList:
+    #     - name: trivy-insights
+    #       env:
+    #         - name: EXTENSION_URL
+    #           value: https://github.com/DeWildeDaan/argo-trivy-insights/releases/latest/download/extension-trivy-insights.tar.gz
+    #         - name: EXTENSION_CHECKSUM_URL
+    #           value: https://github.com/DeWildeDaan/argo-trivy-insights/releases/latest/download/extension-trivy-insights_checksums.txt
   redis:
     serviceAccount:
       create: true
