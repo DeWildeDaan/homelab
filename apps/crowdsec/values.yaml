@@ -65,16 +65,7 @@ crowdsec:
 
     env:
       - name: COLLECTIONS
-        value: >-
-          crowdsecurity/linux
-          crowdsecurity/traefik
-          crowdsecurity/http-cve
-          crowdsecurity/base-http-scenarios
-          crowdsecurity/sshd
-          crowdsecurity/pgsql
-          LePresidente/adguardhome
-          Dominic-Wagner/vaultwarden
-          LePresidente/jellyfin
+        value: "crowdsecurity/linux crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios crowdsecurity/sshd crowdsecurity/pgsql LePresidente/adguardhome Dominic-Wagner/vaultwarden LePresidente/jellyfin"
 
     resources:
       requests:
