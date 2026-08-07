@@ -1,5 +1,42 @@
 trivy-operator:
   trivy:
     ignoreUnfixed: true
-  operator:
-    infraAssessmentScannerEnabled: true
+  nodeCollector:
+    volumeMounts:
+      - name: var-lib-etcd
+        mountPath: /var/lib/rancher/k3s/server/db/etcd
+        readOnly: true
+      - name: var-lib-kubelet
+        mountPath: /var/lib/rancher/k3s/agent
+        readOnly: true
+      - name: etc-systemd
+        mountPath: /etc/systemd
+        readOnly: true
+      - name: lib-systemd
+        mountPath: /lib/systemd/
+        readOnly: true
+      - name: etc-kubernetes
+        mountPath: /etc/rancher/k3s
+        readOnly: true
+      - name: etc-cni-netd
+        mountPath: /var/lib/rancher/k3s/agent/etc/cni/net.d/
+        readOnly: true
+    volumes:
+      - name: var-lib-etcd
+        hostPath:
+          path: /var/lib/rancher/k3s/server/db/etcd
+      - name: var-lib-kubelet
+        hostPath:
+          path: /var/lib/rancher/k3s/agent
+      - name: etc-systemd
+        hostPath:
+          path: /etc/systemd
+      - name: lib-systemd
+        hostPath:
+          path: /lib/systemd
+      - name: etc-kubernetes
+        hostPath:
+          path: /etc/rancher/k3s
+      - name: etc-cni-netd
+        hostPath:
+          path: /var/lib/rancher/k3s/agent/etc/cni/net.d
