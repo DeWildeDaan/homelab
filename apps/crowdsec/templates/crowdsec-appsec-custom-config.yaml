@@ -7,8 +7,6 @@ data:
   jellyfin-exceptions.yaml: |
     name: custom/jellyfin-exceptions
     pre_eval:
-      - filter: req.URL.Host == "jellyfin.home.daandewilde.be" && req.URL.Path startsWith "/Sessions/Playing/"
+      - filter: req.URL.Host == "jellyfin.home.daandewilde.be" && (req.URL.Path startsWith "/Sessions/" || req.URL.Path startsWith "/Items/" || req.URL.Path startsWith "/Playback/")
         apply:
-          - RemoveInBandRuleByID(932370)
-          - RemoveInBandRuleByID(949110)
-          - RemoveInBandRuleByID(980170)
+          - SetRemediation("allow")
