@@ -34,7 +34,7 @@ argo-cd:
   applicationSet:
     replicas: 2
   server:
-    replicas: 2
+    replicas: 1
     # extensions:
     #   enabled: true
     #   extensionList:
