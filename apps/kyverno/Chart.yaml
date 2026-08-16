@@ -1,0 +1,10 @@
+apiVersion: v2
+name: kyverno
+description: Kyverno policy engine with cluster policies
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: kyverno
+    version: "3.9.0"
+    repository: "https://kyverno.github.io/kyverno"

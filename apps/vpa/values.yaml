@@ -1,13 +1,3 @@
-vpaObjects:
-  enabled: true
-  targets:
-    - name: vpa-vertical-pod-autoscaler-admission-controller
-    - name: vpa-vertical-pod-autoscaler-recommender
-    - name: vpa-vertical-pod-autoscaler-updater
-    - name: adguard
-      namespace: adguard
-
-
 vertical-pod-autoscaler:
   admissionController:
     enabled: true
