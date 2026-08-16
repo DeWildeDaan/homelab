@@ -5,7 +5,7 @@ metadata:
 spec:
   rules:
     - name: generate-vpa-deployment
-      skipBackgroundRequests: true
+      skipBackgroundRequests: false
       match:
         any:
           - resources:
@@ -45,7 +45,7 @@ spec:
                     - memory
 
     - name: generate-vpa-statefulset
-      skipBackgroundRequests: true
+      skipBackgroundRequests: false
       match:
         any:
           - resources:
@@ -85,7 +85,7 @@ spec:
                     - memory
 
     - name: generate-vpa-daemonset
-      skipBackgroundRequests: true
+      skipBackgroundRequests: false
       match:
         any:
           - resources:
