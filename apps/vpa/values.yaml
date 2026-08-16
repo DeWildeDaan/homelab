@@ -3,7 +3,7 @@ vpaObjects:
   targets:
     - name: vpa-vertical-pod-autoscaler-admission-controller
     - name: vpa-vertical-pod-autoscaler-recommender
-    - name: vpa-vertical-pod-autoscaler-recommender
+    - name: vpa-vertical-pod-autoscaler-updater
 
 
 vertical-pod-autoscaler:
@@ -18,7 +18,7 @@ vertical-pod-autoscaler:
     certManager:
       enabled: true
       issuerRef:
-        name: "selfsigned-cluster-issuer"
+        name: "letsencrypt-prod"
         kind: ClusterIssuer
 
     resources:
