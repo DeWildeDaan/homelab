@@ -1,14 +1,9 @@
 vpaObjects:
   enabled: true
   targets:
-    - name: vpa-admission-controller
-      kind: Deployment
-
-    - name: vpa-recommender
-      kind: Deployment
-
-    - name: vpa-updater
-      kind: Deployment
+    - name: vpa-vertical-pod-autoscaler-admission-controller
+    - name: vpa-vertical-pod-autoscaler-recommender
+    - name: vpa-vertical-pod-autoscaler-recommender
 
 
 vertical-pod-autoscaler:
