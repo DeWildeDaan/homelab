@@ -1,0 +1,58 @@
+vpaObjects:
+  enabled: true
+  targets:
+    - name: vpa-admission-controller
+      kind: Deployment
+
+    - name: vpa-recommender
+      kind: Deployment
+
+    - name: vpa-updater
+      kind: Deployment
+
+
+vertical-pod-autoscaler:
+  admissionController:
+    enabled: true
+
+    registerWebhook: false
+
+    certGen:
+      enabled: false
+
+    certManager:
+      enabled: true
+      issuerRef:
+        name: "selfsigned-cluster-issuer"
+        kind: ClusterIssuer
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+  recommender:
+    enabled: true
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+  updater:
+    enabled: true
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+  crds:
+    create: true
