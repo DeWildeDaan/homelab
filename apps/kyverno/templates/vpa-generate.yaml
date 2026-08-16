@@ -1,0 +1,122 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: generate-vpa
+spec:
+  rules:
+    - name: generate-vpa-deployment
+      match:
+        any:
+          - resources:
+              kinds:
+                - Deployment
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kube-public
+                - kube-node-lease
+                - default
+      generate:
+        generateExisting: true
+        synchronize: true
+        apiVersion: autoscaling.k8s.io/v1
+        kind: VerticalPodAutoscaler
+        name: "{{request.object.metadata.name}}"
+        namespace: "{{request.object.metadata.namespace}}"
+        data:
+          metadata:
+            labels:
+              managed-by: kyverno
+          spec:
+            targetRef:
+              apiVersion: apps/v1
+              kind: Deployment
+              name: "{{request.object.metadata.name}}"
+            updatePolicy:
+              updateMode: "Off"
+            resourcePolicy:
+              containerPolicies:
+                - containerName: "*"
+                  controlledResources:
+                    - cpu
+                    - memory
+
+    - name: generate-vpa-statefulset
+      match:
+        any:
+          - resources:
+              kinds:
+                - StatefulSet
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kube-public
+                - kube-node-lease
+                - default
+      generate:
+        generateExisting: true
+        synchronize: true
+        apiVersion: autoscaling.k8s.io/v1
+        kind: VerticalPodAutoscaler
+        name: "{{request.object.metadata.name}}"
+        namespace: "{{request.object.metadata.namespace}}"
+        data:
+          metadata:
+            labels:
+              managed-by: kyverno
+          spec:
+            targetRef:
+              apiVersion: apps/v1
+              kind: StatefulSet
+              name: "{{request.object.metadata.name}}"
+            updatePolicy:
+              updateMode: "Off"
+            resourcePolicy:
+              containerPolicies:
+                - containerName: "*"
+                  controlledResources:
+                    - cpu
+                    - memory
+
+    - name: generate-vpa-daemonset
+      match:
+        any:
+          - resources:
+              kinds:
+                - DaemonSet
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kube-public
+                - kube-node-lease
+                - default
+      generate:
+        generateExisting: true
+        synchronize: true
+        apiVersion: autoscaling.k8s.io/v1
+        kind: VerticalPodAutoscaler
+        name: "{{request.object.metadata.name}}"
+        namespace: "{{request.object.metadata.namespace}}"
+        data:
+          metadata:
+            labels:
+              managed-by: kyverno
+          spec:
+            targetRef:
+              apiVersion: apps/v1
+              kind: DaemonSet
+              name: "{{request.object.metadata.name}}"
+            updatePolicy:
+              updateMode: "Off"
+            resourcePolicy:
+              containerPolicies:
+                - containerName: "*"
+                  controlledResources:
+                    - cpu
+                    - memory
