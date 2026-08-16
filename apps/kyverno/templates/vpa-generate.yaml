@@ -23,8 +23,8 @@ spec:
         synchronize: true
         apiVersion: autoscaling.k8s.io/v1
         kind: VerticalPodAutoscaler
-        name: "{{request.object.metadata.name}}"
-        namespace: "{{request.object.metadata.namespace}}"
+        name: "{{ "{{" }}request.object.metadata.name{{ "}}" }}"
+        namespace: "{{ "{{" }}request.object.metadata.namespace{{ "}}" }}"
         data:
           metadata:
             labels:
@@ -33,7 +33,7 @@ spec:
             targetRef:
               apiVersion: apps/v1
               kind: Deployment
-              name: "{{request.object.metadata.name}}"
+              name: "{{ "{{" }}request.object.metadata.name{{ "}}" }}"
             updatePolicy:
               updateMode: "Off"
             resourcePolicy:
@@ -62,8 +62,8 @@ spec:
         synchronize: true
         apiVersion: autoscaling.k8s.io/v1
         kind: VerticalPodAutoscaler
-        name: "{{request.object.metadata.name}}"
-        namespace: "{{request.object.metadata.namespace}}"
+        name: "{{ "{{" }}request.object.metadata.name{{ "}}" }}"
+        namespace: "{{ "{{" }}request.object.metadata.namespace{{ "}}" }}"
         data:
           metadata:
             labels:
@@ -72,7 +72,7 @@ spec:
             targetRef:
               apiVersion: apps/v1
               kind: StatefulSet
-              name: "{{request.object.metadata.name}}"
+              name: "{{ "{{" }}request.object.metadata.name{{ "}}" }}"
             updatePolicy:
               updateMode: "Off"
             resourcePolicy:
@@ -101,8 +101,8 @@ spec:
         synchronize: true
         apiVersion: autoscaling.k8s.io/v1
         kind: VerticalPodAutoscaler
-        name: "{{request.object.metadata.name}}"
-        namespace: "{{request.object.metadata.namespace}}"
+        name: "{{ "{{" }}request.object.metadata.name{{ "}}" }}"
+        namespace: "{{ "{{" }}request.object.metadata.namespace{{ "}}" }}"
         data:
           metadata:
             labels:
@@ -111,7 +111,7 @@ spec:
             targetRef:
               apiVersion: apps/v1
               kind: DaemonSet
-              name: "{{request.object.metadata.name}}"
+              name: "{{ "{{" }}request.object.metadata.name{{ "}}" }}"
             updatePolicy:
               updateMode: "Off"
             resourcePolicy:
