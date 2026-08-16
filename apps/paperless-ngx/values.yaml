@@ -1,7 +1,7 @@
 # Knobs for the in-repo Gotenberg + Tika sidecars (templates/{gotenberg,tika}.yaml).
 # Paperless wires to them via PAPERLESS_TIKA_* env below.
 gotenberg:
-  image: gotenberg/gotenberg:8.35.0
+  image: gotenberg/gotenberg:8.36.0
 tika:
   image: apache/tika:3.3.1.0-full
 
