@@ -25,10 +25,10 @@ homepage:
               href: https://argocd.home.daandewilde.be
               description: GitOps & deployments
 
-          - Traefik:
-              icon: traefik.png
-              href: https://traefik.home.daandewilde.be
-              description: Ingress controller
+          - PocketID:
+              icon: pocketid.png
+              href: https://auth.home.daandewilde.be
+              description: Authentication
 
           - Longhorn:
               icon: longhorn.png
@@ -103,17 +103,17 @@ homepage:
               description: Password manager
 
           - Wealthfolio:
-              icon: wealthfolio.png
+              icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/wealthfolio.png
               href: https://wealthfolio.home.daandewilde.be
               description: Personal finance
 
-          - Wardrobe:
-              icon: wardrobe.png
+          - Wardrowbe:
+              icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/wardrowbe.png
               href: https://wardrobe.home.daandewilde.be
               description: Wardrobe management
 
-          - PDF:
-              icon: pdf.png
+          - BentoPDF:
+              icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/bentopdf.png
               href: https://pdf.home.daandewilde.be
               description: PDF tools
 
@@ -162,7 +162,6 @@ homepage:
             cpu: true
             memory: true
             showLabel: true
-
       - search:
           provider: google
           target: _blank
