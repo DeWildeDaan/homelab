@@ -9,37 +9,37 @@ version: 0.1.0
 dependencies:
   - name: app-template
     alias: sonarr
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts
   - name: app-template
     alias: radarr
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts
   - name: app-template
     alias: prowlarr
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts
   - name: app-template
     alias: qbittorrent
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts
   - name: app-template
     alias: jellyseerr
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts
   - name: app-template
     alias: jellyfin
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts
   - name: app-template
     alias: flaresolverr
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts
   - name: app-template
     alias: bazarr
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts
   - name: app-template
     alias: maintainerr
-    version: 5.0.1
+    version: 5.1.0
     repository: https://bjw-s-labs.github.io/helm-charts
