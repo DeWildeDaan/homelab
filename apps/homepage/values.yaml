@@ -18,6 +18,11 @@ homepage:
 
 
   config:
+    bookmarks:
+      - Developer:
+          - GitHub:
+              - abbr: GH
+                href: https://github.com/DeWildeDaan
     services:
       - Infrastructure:
           - ArgoCD:
@@ -116,8 +121,6 @@ homepage:
               icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/bentopdf.png
               href: https://pdf.home.daandewilde.be
               description: PDF tools
-
-      - Smart Home:
           - Home Assistant:
               icon: home-assistant.png
               href: http://192.168.3.10:8123/home-dashboard/home
@@ -179,22 +182,22 @@ homepage:
       layout:
         Infrastructure:
           style: row
-          columns: 4
+          columns: 1
 
         Media:
           style: row
-          columns: 4
+          columns: 1
 
         Applications:
           style: row
-          columns: 4
+          columns: 1
 
         Smart Home:
           style: row
-          columns: 4
+          columns: 1
 
         Hardware:
           style: row
-          columns: 4
+          columns: 1
 
     docker: {}
