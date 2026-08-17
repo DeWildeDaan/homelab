@@ -1,0 +1,25 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: homepage
+  namespace: homepage
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Homepage"
+    gethomepage.dev/description: "Application dashboard"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "homepage.png"
+    gethomepage.dev/href: "https://homepage.home.daandewilde.be"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`homepage.home.daandewilde.be`)
+      kind: Rule
+      middlewares:
+        - name: pocket-id-users
+          namespace: kube-system
+      services:
+        - name: homepage
+          port: 3000
+  tls: {}

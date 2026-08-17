@@ -1,0 +1,79 @@
+homepage:
+  image:
+    repository: ghcr.io/gethomepage/homepage
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  # RBAC for Kubernetes service discovery
+  enableRbac: true
+
+  serviceAccount:
+    create: true
+
+  # The HOMEPAGE_ALLOWED_HOSTS env var is required since v1.0
+  env:
+    HOMEPAGE_ALLOWED_HOSTS: homepage.home.daandewilde.be
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+  # All config is managed here and rendered into a ConfigMap by the chart
+  config:
+    bookmarks:
+      - Developer:
+          - GitHub:
+              - abbr: GH
+                href: https://github.com
+
+    services:
+      - Infrastructure:
+          - ArgoCD:
+              icon: argocd.png
+              href: https://argocd.home.daandewilde.be
+              description: GitOps
+          - Traefik:
+              icon: traefik.png
+              href: https://traefik.home.daandewilde.be
+              description: Ingress controller
+          - AdGuard Home:
+              icon: adguard-home.png
+              href: http://192.168.4.31
+              description: DNS & ad-blocking
+
+    widgets:
+      - kubernetes:
+          cluster:
+            show: true
+            cpu: true
+            memory: true
+            showLabel: true
+            label: homelab
+          nodes:
+            show: true
+            cpu: true
+            memory: true
+            showLabel: true
+      - search:
+          provider: duckduckgo
+          target: _blank
+
+    kubernetes:
+      mode: cluster
+
+    settings:
+      title: Homelab
+      favicon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/home-assistant.png
+      theme: dark
+      color: slate
+      headerStyle: boxed
+      layout:
+        Infrastructure:
+          style: row
+          columns: 4
+
+    docker: {}

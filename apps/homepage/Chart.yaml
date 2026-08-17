@@ -1,0 +1,11 @@
+apiVersion: v2
+name: homepage
+description: Umbrella chart for gethomepage/homepage
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: homepage
+    version: "2.0.1"
+    repository: "https://jameswynn.github.io/helm-charts"
