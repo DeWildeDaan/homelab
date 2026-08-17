@@ -3,17 +3,11 @@ homepage:
     repository: ghcr.io/gethomepage/homepage
     tag: latest
     pullPolicy: IfNotPresent
-
-  # RBAC for Kubernetes service discovery
   enableRbac: true
-
   serviceAccount:
     create: true
-
-  # The HOMEPAGE_ALLOWED_HOSTS env var is required since v1.0
   env:
     HOMEPAGE_ALLOWED_HOSTS: homepage.home.daandewilde.be
-
   resources:
     requests:
       cpu: 50m
@@ -22,28 +16,138 @@ homepage:
       cpu: 200m
       memory: 256Mi
 
-  # All config is managed here and rendered into a ConfigMap by the chart
-  config:
-    bookmarks:
-      - Developer:
-          - GitHub:
-              - abbr: GH
-                href: https://github.com
 
+  config:
     services:
       - Infrastructure:
           - ArgoCD:
-              icon: argocd.png
+              icon: argo-cd.png
               href: https://argocd.home.daandewilde.be
-              description: GitOps
+              description: GitOps & deployments
+
           - Traefik:
               icon: traefik.png
               href: https://traefik.home.daandewilde.be
               description: Ingress controller
+
+          - Longhorn:
+              icon: longhorn.png
+              href: https://longhorn.home.daandewilde.be
+              description: Kubernetes storage
+
           - AdGuard Home:
               icon: adguard-home.png
-              href: http://192.168.4.31
-              description: DNS & ad-blocking
+              href: https://adguard.home.daandewilde.be
+              description: DNS & ad blocking
+
+          - CrowdSec:
+              icon: crowdsec.png
+              href: https://crowdsec.home.daandewilde.be
+              description: Security & threat detection
+
+      - Media:
+          - Jellyfin:
+              icon: jellyfin.png
+              href: https://jellyfin.home.daandewilde.be
+              description: Media server
+
+          - Jellyseerr:
+              icon: jellyseerr.png
+              href: https://jellyseerr.home.daandewilde.be
+              description: Media requests
+
+          - Sonarr:
+              icon: sonarr.png
+              href: https://sonarr.home.daandewilde.be
+              description: TV management
+
+          - Radarr:
+              icon: radarr.png
+              href: https://radarr.home.daandewilde.be
+              description: Movie management
+
+          - Prowlarr:
+              icon: prowlarr.png
+              href: https://prowlarr.home.daandewilde.be
+              description: Indexer management
+
+          - Bazarr:
+              icon: bazarr.png
+              href: https://bazarr.home.daandewilde.be
+              description: Subtitle management
+
+          - qBittorrent:
+              icon: qbittorrent.png
+              href: https://qbittorrent.home.daandewilde.be
+              description: Download client
+
+          - Maintainerr:
+              icon: maintainerr.png
+              href: https://maintainerr.home.daandewilde.be
+              description: Media library cleanup
+
+      - Applications:
+          - Immich:
+              icon: immich.png
+              href: https://immich.home.daandewilde.be
+              description: Photo & video library
+
+          - Paperless:
+              icon: paperless-ngx.png
+              href: https://paperless.home.daandewilde.be
+              description: Document management
+
+          - Vaultwarden:
+              icon: vaultwarden.png
+              href: https://vaultwarden.home.daandewilde.be
+              description: Password manager
+
+          - Wealthfolio:
+              icon: wealthfolio.png
+              href: https://wealthfolio.home.daandewilde.be
+              description: Personal finance
+
+          - Wardrobe:
+              icon: wardrobe.png
+              href: https://wardrobe.home.daandewilde.be
+              description: Wardrobe management
+
+          - PDF:
+              icon: pdf.png
+              href: https://pdf.home.daandewilde.be
+              description: PDF tools
+
+      - Smart Home:
+          - Home Assistant:
+              icon: home-assistant.png
+              href: http://192.168.3.10:8123/home-dashboard/home
+              description: Home automation
+
+      - Hardware:
+          - Synology NAS:
+              icon: synology.png
+              href: https://192.168.4.10:5001
+              description: NAS management
+
+          - Proxmox VE 0:
+              icon: proxmox.png
+              href: https://192.168.3.11:8006
+              description: Virtualization host
+
+          - Proxmox VE 1:
+              icon: proxmox.png
+              href: https://192.168.4.11:8006
+              description: Virtualization host
+
+          - Proxmox VE 2:
+              icon: proxmox.png
+              href: https://192.168.4.12:8006
+              description: Virtualization host
+
+          - Proxmox VE 3:
+              icon: proxmox.png
+              href: https://192.168.4.13:8006
+              description: Virtualization host
 
     widgets:
       - kubernetes:
@@ -58,8 +162,9 @@ homepage:
             cpu: true
             memory: true
             showLabel: true
+
       - search:
-          provider: duckduckgo
+          provider: google
           target: _blank
 
     kubernetes:
@@ -67,7 +172,42 @@ homepage:
 
     settings:
       title: Homelab
-      favicon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/home-assistant.png
+      favicon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/homepage.png
+      theme: dark
+      color: slate
+      headerStyle: boxed
+
+      layout:
+        Infrastructure:
+          style: row
+          columns: 4
+
+        Media:
+          style: row
+          columns: 4
+
+        Applications:
+          style: row
+          columns: 4
+
+        Smart Home:
+          style: row
+          columns: 4
+
+        Hardware:
+          style: row
+          columns: 4
+
+
+
+
+
+    kubernetes:
+      mode: cluster
+
+    settings:
+      title: Homelab
+      favicon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/homepage.png
       theme: dark
       color: slate
       headerStyle: boxed
