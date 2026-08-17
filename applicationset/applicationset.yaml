@@ -25,6 +25,10 @@ spec:
         - /spec/volumeMode
         - /spec/dataSource
         kind: PersistentVolumeClaim
+      - group: autoscaling.k8s.io
+        kind: VerticalPodAutoscaler
+        jsonPointers:
+        - /
       project: default
       source:
         path: '{{path}}'
