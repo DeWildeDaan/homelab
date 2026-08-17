@@ -26,7 +26,7 @@ homepage:
               description: GitOps & deployments
 
           - PocketID:
-              icon: pocketid.png
+              icon: https://cdn.jsdelivr.net/gh/selfhst/icons/png/pocket-id.png
               href: https://auth.home.daandewilde.be
               description: Authentication
 
@@ -174,7 +174,7 @@ homepage:
       favicon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/homepage.png
       theme: dark
       color: slate
-      headerStyle: boxed
+      headerStyle: clean
 
       layout:
         Infrastructure:
