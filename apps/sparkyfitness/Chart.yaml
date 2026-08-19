@@ -6,5 +6,5 @@ version: 1.0.0
 
 dependencies:
   - name: sparkyfitness
-    version: "0.16.0"
+    version: "v0.16.0"
     repository: oci://ghcr.io/codewithcj/charts
