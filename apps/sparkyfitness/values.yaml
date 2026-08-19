@@ -86,11 +86,3 @@ sparkyfitness:
 
   ingress:
     enabled: false
-
-  service:
-    frontend:
-      type: ClusterIP
-      port: 8080
-    server:
-      type: ClusterIP
-      port: 3010
