@@ -1,6 +1,13 @@
 sparkyfitness:
   postgresql:
     enabled: false
+  externalDatabase:
+    host: sparkyfitness-db-rw
+    port: 5432
+    database: sparkyfitness
+    auth:
+      existingSecret: sparkyfitness-db-app
+      
   server:
     replicaCount: 2
 
