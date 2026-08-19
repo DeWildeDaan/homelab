@@ -1,7 +1,7 @@
 ollama:
   image:
     repository: ollama/ollama
-    tag: "0.32.13"
+    tag: "0.32.14"
     pullPolicy: IfNotPresent
 
   service:
