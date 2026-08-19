@@ -32,37 +32,29 @@ sparkyfitness:
         size: 20Gi
         accessMode: ReadWriteMany
         storageClass: "nfs-nas"
-
-    env:
-      NODE_ENV: production
-      TZ: Europe/Brussels
-
-      SPARKY_FITNESS_DB_HOST: sparkyfitness-db-rw
-      SPARKY_FITNESS_DB_PORT: "5432"
-      SPARKY_FITNESS_DB_NAME: sparkyfitness
-
-      SPARKY_FITNESS_FRONTEND_URL: "https://sparkyfitness.home.daandewilde.be"
-      SPARKY_FITNESS_EXTRA_TRUSTED_ORIGINS: "https://sparkyfitness.home.daandewilde.be"
-
-      SPARKY_FITNESS_DISABLE_EMAIL_LOGIN: "true"
-      SPARKY_FITNESS_OIDC_AUTO_REDIRECT: "true"
-      SPARKY_FITNESS_OIDC_AUTH_ENABLED: "true"
-      SPARKY_FITNESS_OIDC_ISSUER_URL: "https://auth.home.daandewilde.be"
-      SPARKY_FITNESS_OIDC_PROVIDER_SLUG: "pocket-id"
-      SPARKY_FITNESS_OIDC_PROVIDER_NAME: "Pocket ID"
-      SPARKY_FITNESS_OIDC_SCOPE: "openid email profile"
-      SPARKY_FITNESS_OIDC_AUTO_REGISTER: "true"
-      SPARKY_FITNESS_OIDC_TOKEN_AUTH_METHOD: "client_secret_post"
-      SPARKY_FITNESS_ADMIN_EMAIL: "daan1.dewilde@gmail.com"
-
-    existingSecret: sparkyfitness-app-secret
-    secretEnvKeys:
-      - SPARKY_FITNESS_DB_USER
-      - SPARKY_FITNESS_DB_PASSWORD
-      - SPARKY_FITNESS_API_ENCRYPTION_KEY
-      - BETTER_AUTH_SECRET
-      - SPARKY_FITNESS_OIDC_CLIENT_ID
-      - SPARKY_FITNESS_OIDC_CLIENT_SECRET
+    
+  config:
+    nodeEnv: "production"
+    timezone: "Europe/Brussels"
+    logLevel: "warn"
+    frontendUrl: "https://sparkyfitness.home.daandewilde.be"
+    disableSignup: true
+    allowPrivateNetworkCors: true
+    extraTrustedOrigins: "https://sparkyfitness.home.daandewilde.be"
+    forceEmailLogin: false
+    disableEmailLogin: true
+    oidc:
+      enabled: true
+      providerSlug: "pocket-id"
+      providerName: "Pocket ID"
+      issuerUrl: "https://auth.home.daandewilde.be"
+      logoUrl: "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/pocket-id.png"
+      adminGroup: "admin"
+      secrets:
+        existingSecret: "sparkyfitness-app-secret"
+        existingSecretKeys:
+          clientId: SPARKY_FITNESS_OIDC_CLIENT_ID
+          clientSecret: SPARKY_FITNESS_OIDC_CLIENT_SECRET
 
   frontend:
     replicaCount: 2
