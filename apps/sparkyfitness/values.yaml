@@ -6,7 +6,7 @@ sparkyfitness:
 
     image:
       repository: codewithcj/sparkyfitness_server
-      tag: ""  # defaults to appVersion
+      tag: "v1.6.2"
 
     resources:
       requests:
