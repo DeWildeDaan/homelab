@@ -27,3 +27,10 @@ spec:
       owner: sparkyfitness
       secret:
         name: sparkyfitness-db-app
+        
+  managed:
+    roles:
+      - name: sparkyfitness
+        ensure: present
+        login: true
+        createrole: true
