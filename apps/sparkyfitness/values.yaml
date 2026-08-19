@@ -1,0 +1,85 @@
+sparkyfitness:
+  postgresql:
+    enabled: false
+  server:
+    replicaCount: 2
+
+    image:
+      repository: codewithcj/sparkyfitness_server
+      tag: ""  # defaults to appVersion
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+    persistence:
+      uploads:
+        enabled: true
+        existingClaim: sparkyfitness-uploads
+        mountPath: /app/uploads
+
+    env:
+      NODE_ENV: production
+      TZ: Europe/Brussels
+
+      SPARKY_FITNESS_DB_HOST: sparkyfitness-db-rw
+      SPARKY_FITNESS_DB_PORT: "5432"
+      SPARKY_FITNESS_DB_NAME: sparkyfitness
+
+      SPARKY_FITNESS_FRONTEND_URL: "https://sparkyfitness.home.daandewilde.be"
+      SPARKY_FITNESS_EXTRA_TRUSTED_ORIGINS: "https://sparkyfitness.home.daandewilde.be"
+
+      SPARKY_FITNESS_DISABLE_EMAIL_LOGIN: "true"
+      SPARKY_FITNESS_OIDC_AUTO_REDIRECT: "true"
+      SPARKY_FITNESS_OIDC_AUTH_ENABLED: "true"
+      SPARKY_FITNESS_OIDC_ISSUER_URL: "https://auth.home.daandewilde.be"
+      SPARKY_FITNESS_OIDC_PROVIDER_SLUG: "pocket-id"
+      SPARKY_FITNESS_OIDC_PROVIDER_NAME: "Pocket ID"
+      SPARKY_FITNESS_OIDC_SCOPE: "openid email profile"
+      SPARKY_FITNESS_OIDC_AUTO_REGISTER: "true"
+      SPARKY_FITNESS_OIDC_TOKEN_AUTH_METHOD: "client_secret_post"
+      SPARKY_FITNESS_ADMIN_EMAIL: "daan1.dewilde@gmail.com"
+
+    existingSecret: sparkyfitness-app-secret
+    secretEnvKeys:
+      - SPARKY_FITNESS_DB_USER
+      - SPARKY_FITNESS_DB_PASSWORD
+      - SPARKY_FITNESS_API_ENCRYPTION_KEY
+      - BETTER_AUTH_SECRET
+      - SPARKY_FITNESS_OIDC_CLIENT_ID
+      - SPARKY_FITNESS_OIDC_CLIENT_SECRET
+
+  frontend:
+    replicaCount: 2
+
+    image:
+      repository: codewithcj/sparkyfitness_frontend
+      tag: ""
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+    env:
+      SPARKY_FITNESS_SERVER_HOST: sparkyfitness-server
+      SPARKY_FITNESS_SERVER_PORT: "3010"
+      NGINX_LISTEN_PORT: "8080"
+
+  ingress:
+    enabled: false
+
+  service:
+    frontend:
+      type: ClusterIP
+      port: 8080
+    server:
+      type: ClusterIP
+      port: 3010

@@ -1,0 +1,10 @@
+apiVersion: v2
+name: sparkyfitness
+description: Umbrella chart for SparkyFitness - self-hosted fitness tracker
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: sparkyfitness
+    version: "1.6.0"
+    repository: oci://ghcr.io/codewithcj/charts
