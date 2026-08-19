@@ -40,7 +40,7 @@ sparkyfitness:
     frontendUrl: "https://sparkyfitness.home.daandewilde.be"
     disableSignup: true
     allowPrivateNetworkCors: true
-    extraTrustedOrigins: "https://sparkyfitness.home.daandewilde.be"
+    extraTrustedOrigins: "https://*.home.daandewilde.be"
     forceEmailLogin: false
     disableEmailLogin: true
     oidc:
