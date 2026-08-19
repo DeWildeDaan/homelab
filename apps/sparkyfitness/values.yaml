@@ -13,7 +13,7 @@ sparkyfitness:
 
     image:
       repository: codewithcj/sparkyfitness_server
-      tag: "1.6.2"
+      tag: "1.6.1"
 
     resources:
       requests:
@@ -65,7 +65,7 @@ sparkyfitness:
 
     image:
       repository: codewithcj/sparkyfitness_frontend
-      tag: "1.6.2"
+      tag: "1.6.1"
 
     resources:
       requests:
