@@ -24,10 +24,14 @@ sparkyfitness:
         memory: 512Mi
 
     persistence:
+      backup:
+        size: 10Gi
+        accessMode: ReadWriteMany
+        storageClass: "nfs-nas"
       uploads:
-        enabled: true
-        existingClaim: sparkyfitness-uploads
-        mountPath: /app/uploads
+        size: 20Gi
+        accessMode: ReadWriteMany
+        storageClass: "nfs-nas"
 
     env:
       NODE_ENV: production
