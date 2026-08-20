@@ -24,13 +24,13 @@ spec:
   bootstrap:
     initdb:
       database: sparkyfitness
-      owner: sparkyfitness
+      owner: sparkyfitnesssuper
       secret:
         name: sparkyfitness-db-app
 
   managed:
     roles:
-    - name: sparkyfitness
+    - name: sparkyfitnesssuper
       connectionLimit: -1	
       ensure: present	
       inherit: true
