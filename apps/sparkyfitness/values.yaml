@@ -38,7 +38,7 @@ sparkyfitness:
     timezone: "Europe/Brussels"
     logLevel: "warn"
     frontendUrl: "https://sparkyfitness.home.daandewilde.be"
-    disableSignup: true
+    disableSignup: false
     allowPrivateNetworkCors: true
     extraTrustedOrigins: "https://*.home.daandewilde.be"
     forceEmailLogin: false
