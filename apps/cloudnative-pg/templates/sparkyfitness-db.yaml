@@ -31,11 +31,15 @@ spec:
   managed:
     roles:
     - name: sparkyfitness
-      ensure: present
+      connectionLimit: -1	
+      ensure: present	
+      inherit: true
       login: true
       superuser: true
     - name: sparky
-      ensure: present
+      connectionLimit: -1	
+      ensure: present	
+      inherit: true
       login: true
       superuser: false
       passwordSecret:
