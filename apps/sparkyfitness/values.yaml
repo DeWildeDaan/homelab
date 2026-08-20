@@ -6,7 +6,10 @@ sparkyfitness:
     port: 5432
     database: sparkyfitness
     auth:
-      existingSecret: sparkyfitness-db-app
+      existingSecret: sparkyfitness-db-super-app
+      existingSecretKeys:
+        username: username
+        password: password
 
   server:
     replicaCount: 2
@@ -22,6 +25,12 @@ sparkyfitness:
       limits:
         cpu: 500m
         memory: 512Mi
+
+    appDatabase:
+      existingSecret: sparkyfitness-db-app
+      existingSecretKeys:
+        username: username
+        password: password
 
     persistence:
       backup:
