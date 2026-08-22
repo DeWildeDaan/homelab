@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alloy-config
+data:
+  config.alloy: |
+    //
+    // ALLOY CONFIG
+    //
+
+    // Alloy logging config
+    logging {
+      level = "info"
+      format = "json"
+    }
+    
+    livedebugging {
+      enabled = true
+    }
+
+
+    //
+    // WRITER COMPONENT(S)
+    //
+
+    // Writer component (Used to write to Loki)
+    //loki.write "loki_default" {
+    //  endpoint {
+    //    url = "http://loki-write.grafana-loki-app.svc.cluster.local:3100/loki/api/v1/push"
+    //  }
+    //}
+
+    // Writer component (Used to write to Mimir) (currently unused)
+    //prometheus.remote_write "mimir_default" {
+    //  endpoint {
+    //    url ="http://grafana-mimir-app-nginx.grafana-mimir-app.svc.cluster.local:80/api/v1/push"
+    //  }
+    //}
