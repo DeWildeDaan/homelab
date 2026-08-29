@@ -33,6 +33,7 @@ spec:
             annotations:
               argocd.argoproj.io/tracking-id: "{{ "{{" }}split(request.object.metadata.annotations.\"argocd.argoproj.io/tracking-id\", ':')[0]{{ "}}" }}:autoscaling.k8s.io/VerticalPodAutoscaler:{{ "{{" }}request.object.metadata.namespace{{ "}}" }}/{{ "{{" }}request.object.metadata.name{{ "}}" }}"
               argocd.argoproj.io/compare-options: IgnoreExtraneous
+          spec:  
             targetRef:
               apiVersion: apps/v1
               kind: Deployment
