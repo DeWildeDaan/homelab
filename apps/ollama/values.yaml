@@ -1,7 +1,7 @@
 ollama:
   image:
     repository: ollama/ollama
-    tag: "0.33.2"
+    tag: "0.33.3"
     pullPolicy: IfNotPresent
 
   service:
@@ -22,7 +22,7 @@ ollama:
 openWebui:
   image:
     repository: ghcr.io/open-webui/open-webui
-    tag: "v0.11.1"
+    tag: "v0.11.3"
     pullPolicy: IfNotPresent
 
   service:
