@@ -115,6 +115,14 @@ crowdsec:
 
     replicas: 2
 
+    # Bump this value any time jellyfin-exceptions.yaml (or any file in
+    # crowdsec-appsec-custom-config) changes. The AppSec component only loads
+    # its rule files at process startup, and this ConfigMap isn't otherwise
+    # referenced by the pod spec, so editing it alone does NOT restart the
+    # pods — ArgoCD applies the ConfigMap but the Deployment stays untouched.
+    podAnnotations:
+      crowdsec.io/custom-appsec-config-version: "2"
+
     acquisitions:
       - source: appsec
         listen_addr: "0.0.0.0:7422"
