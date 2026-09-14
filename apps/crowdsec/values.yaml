@@ -121,7 +121,7 @@ crowdsec:
     # referenced by the pod spec, so editing it alone does NOT restart the
     # pods — ArgoCD applies the ConfigMap but the Deployment stays untouched.
     podAnnotations:
-      crowdsec.io/custom-appsec-config-version: "2"
+      crowdsec.io/custom-appsec-config-version: "3"
 
     acquisitions:
       - source: appsec
@@ -131,6 +131,7 @@ crowdsec:
           - crowdsecurity/appsec-default
           - crowdsecurity/crs
           - custom/jellyfin-exceptions
+          - custom/jellyseerr-exceptions
         labels:
           type: appsec
 

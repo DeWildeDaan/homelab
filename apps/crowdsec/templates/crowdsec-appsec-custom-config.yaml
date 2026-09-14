@@ -17,3 +17,16 @@ data:
           - RemoveOutBandRuleByID(932370)
           - RemoveOutBandRuleByID(949110)
           - RemoveOutBandRuleByID(980170)
+  jellyseerr-exceptions.yaml: |
+    name: custom/jellyseerr-exceptions
+    pre_eval:
+      - filter: >
+          req.URL.Path startsWith "/api/v1/request"
+          && req.Host == "jellyseerr.home.daandewilde.be"
+        apply:
+          - RemoveInBandRuleByID(930120)
+          - RemoveInBandRuleByID(949110)
+          - RemoveInBandRuleByID(980170)
+          - RemoveOutBandRuleByID(930120)
+          - RemoveOutBandRuleByID(949110)
+          - RemoveOutBandRuleByID(980170)
