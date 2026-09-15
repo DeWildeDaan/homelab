@@ -1,0 +1,9 @@
+apiVersion: v2
+name: ballast
+description: Ballast — Kubernetes resource right-sizing operator (measures real usage, adjusts pod requests via in-place resize)
+type: application
+version: 0.1.0
+dependencies:
+  - name: ballast
+    version: 0.6.1
+    repository: oci://ghcr.io/tight-line/charts

@@ -1,0 +1,22 @@
+ballast:
+  # Redis — the chart's bundled Valkey subchart is disabled; replaced by the
+  # operator-managed `Redis` CR (ballast-redis) in apps/redis-operator, which
+  # runs in this same `ballast` namespace so the short in-cluster hostname
+  # resolves. Same model as immich/paperless: one operator, one CR per app.
+  valkey:
+    enabled: false
+
+  store:
+    endpoint: "redis://ballast-redis:6379"
+
+  # cert-manager is already installed cluster-wide (apps/cert-manager), so let
+  # the chart create its self-signed Issuer/Certificate for the resize webhook.
+  certManager:
+    enabled: true
+
+  # Cluster-wide default right-sizing policy (the chart's "homogeneous-large-fleet"
+  # preset). Workloads only come under it once they opt in via the
+  # ballast.tightlinesoftware.com/mode pod label (measure/apply/resize), so
+  # enabling this does not touch any existing app's resources by itself.
+  defaultClusterResourcePolicy:
+    enabled: true
