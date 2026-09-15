@@ -1,0 +1,29 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: ballast-opt-in
+spec:
+  background: false
+  rules:
+    - name: inject-ballast-mode
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - ballast
+                - kube-system
+                - kube-public
+                - kube-node-lease
+                - metallb
+                - nfs-storage
+                - default
+      mutate:
+        patchStrategicMerge:
+          metadata:
+            labels:
+              ballast.tightlinesoftware.com/mode: measure
