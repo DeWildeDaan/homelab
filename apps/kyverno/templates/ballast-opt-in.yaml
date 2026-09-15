@@ -29,3 +29,23 @@ spec:
           metadata:
             labels:
               ballast.tightlinesoftware.com/mode: measure
+
+    - name: backfill-name-label
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      preconditions:
+        all:
+          - key: "{{ request.object.metadata.labels.\"ballast.tightlinesoftware.com/mode\" || '' }}"
+            operator: NotEquals
+            value: ""
+          - key: "{{ request.object.metadata.labels.\"app.kubernetes.io/name\" || '' }}"
+            operator: Equals
+            value: ""
+      mutate:
+        patchStrategicMerge:
+          metadata:
+            labels:
+              app.kubernetes.io/name: "{{ request.object.metadata.labels.app || request.object.metadata.labels.\"k8s-app\" || request.object.metadata.labels.name || request.object.metadata.labels.\"longhorn.io/component\" || 'unknown' }}"
