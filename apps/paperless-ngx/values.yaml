@@ -1,7 +1,7 @@
 # Knobs for the in-repo Gotenberg + Tika sidecars (templates/{gotenberg,tika}.yaml).
 # Paperless wires to them via PAPERLESS_TIKA_* env below.
 gotenberg:
-  image: gotenberg/gotenberg:8.36.0
+  image: gotenberg/gotenberg:8.37.0
 tika:
   image: apache/tika:3.3.1.0-full
 
@@ -28,7 +28,7 @@ ingress:
 paperless-ngx:
   image:
     repository: ghcr.io/paperless-ngx/paperless-ngx
-    tag: "3.1.0"
+    tag: "3.1.3"
 
   # Flip the default ClusterIP service to LoadBalancer so MetalLB pins it to a
   # static LAN IP (same pattern as adguard/immich). Traefik still fronts it on
