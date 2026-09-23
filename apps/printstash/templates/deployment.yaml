@@ -85,6 +85,9 @@ spec:
               mountPath: /data/staging
             - name: backups
               mountPath: /data/backups
+            - name: nginx-template
+              mountPath: /app/nginx-server.template
+              subPath: nginx-server.template
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}
@@ -117,3 +120,6 @@ spec:
         - name: backups
           persistentVolumeClaim:
             claimName: {{ include "printstash.fullname" . }}-backups
+        - name: nginx-template
+          configMap:
+            name: {{ include "printstash.fullname" . }}-nginx-template

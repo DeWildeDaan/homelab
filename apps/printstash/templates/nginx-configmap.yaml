@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "printstash.fullname" . }}-nginx-template
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "printstash.labels" . | nindent 4 }}
+data:
+  nginx-server.template: |
+    # Serves the Vite-built SPA and proxies the API (incl. WebSockets) to the
+    # `api` service — replacing the old Next.js rewrites + dev proxy with a single
+    # same-origin entrypoint, so the browser never needs an absolute API URL.
+    server {
+      listen 3000;
+      server_name _;
+      client_max_body_size ${NGINX_CLIENT_MAX_BODY_SIZE};
+
+      root /usr/share/nginx/html;
+      index index.html;
+      include /etc/nginx/security-headers.conf;
+
+      # Compress only browser-facing text assets. Already-compressed fonts, images,
+      # PDFs and model payloads are intentionally absent from gzip_types.
+      gzip on;
+      gzip_comp_level 5;
+      gzip_min_length 1024;
+      gzip_vary on;
+      gzip_types
+        application/javascript
+        application/manifest+json
+        application/json
+        image/svg+xml
+        text/css
+        text/javascript
+        text/plain
+        text/xml;
+
+      # API + WebSocket proxy. Keep this above the SPA fallback so /api/v1 is never
+      # rewritten to index.html.
+      location /api/v1/ {
+        # API compression needs its own latency/CPU and BREACH assessment. Keep the
+        # static-asset improvement independent and avoid double-compressing files.
+        gzip off;
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # We sit behind Traefik, which already terminates TLS and sets this
+        # header correctly. Forwarding our own $scheme here would report
+        # "http" (the plain-HTTP hop from Traefik to this pod) and break the
+        # backend's Origin/scheme check for HTTPS clients.
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+        # WebSocket upgrade (printer live status).
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 86400;
+      }
+
+      # A service worker controls the lifetime of the whole application shell. It
+      # must never be served from an intermediary cache after a redeploy.
+      location = /sw.js {
+        include /etc/nginx/security-headers.conf;
+        default_type application/javascript;
+        try_files $uri =404;
+        add_header Cache-Control "no-store";
+      }
+
+      # Content-hashed build assets. A missing asset must 404 — never fall back to
+      # index.html, or a browser holding a stale index.html (after a rebuild) gets
+      # HTML for a .js request, the bundle fails to parse, and the app never mounts
+      # (symptom: page renders but nothing is clickable). Hashed names are safe to
+      # cache forever.
+      location /assets/ {
+        include /etc/nginx/security-headers.conf;
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+      }
+
+      # ES-module assets (.mjs) — e.g. the pdf.js worker. nginx's default mime map
+      # doesn't type .mjs, so it falls back to application/octet-stream, and the
+      # browser refuses to start a module worker with the wrong type ("Could not
+      # render this PDF"). Revalidate this response because headers are not part of
+      # Vite's content hash: an old, immutable wrong MIME otherwise stays cached
+      # even after the server configuration is corrected.
+      location ~* \.mjs$ {
+        include /etc/nginx/security-headers.conf;
+        default_type application/javascript;
+        try_files $uri =404;
+        add_header Cache-Control "public, no-cache";
+      }
+
+      # SPA history fallback: every other route serves index.html so React Router
+      # resolves it client-side. The app shell is deliberately not stored so a
+      # redeploy's new asset hashes are picked up immediately.
+      location / {
+        include /etc/nginx/security-headers.conf;
+        try_files $uri $uri/ /index.html;
+        add_header Cache-Control "no-store";
+      }
+    }
