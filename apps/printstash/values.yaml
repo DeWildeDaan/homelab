@@ -7,14 +7,7 @@ image:
 
 service:
   port: 3000
-
-# App-level identity (PUID/PGID env vars, NOT a pod securityContext — the
-# entrypoint must start as root to do its chown-then-reexec dance). Must match
-# the uid:gid that owns files on the nfs-nas export (Synology squashes every
-# NFS client to its "admin" account: uid 1024, gid 100). The entrypoint chowns
-# /data/* to PUID:PGID as real root before dropping privileges; over NFS that
-# chown is rejected unless ownership already matches, so this has to be set
-# rather than left at the image default (10001:10001).
+  
 puid: 1024
 pgid: 100
 
@@ -23,12 +16,9 @@ ingress:
   url: https://printstash.home.daandewilde.be
 
 persistence:
-  data:
+  vault:
     storageClass: nfs-nas
-    size: 200Gi
-  thumbs:
-    storageClass: nfs-nas
-    size: 20Gi
+    size: 220Gi
   backups:
     storageClass: nfs-nas
     size: 20Gi

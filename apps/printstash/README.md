@@ -15,8 +15,7 @@ UI, API, and SQLite — no separate DB/cache to stand up.
 
 | Volume     | Mount          | StorageClass | Why |
 | ---------- | -------------- | ------------ | --- |
-| `data`     | `/data/files`  | `nfs-nas`    | 3D model / G-code library — bulk media, must live on the NAS |
-| `thumbs`   | `/data/thumbs` | `nfs-nas`    | Generated previews, tracks the library on the same storage |
+| `vault`    | `/data` (holds `files/` + `thumbs/`) | `nfs-nas` | 3D model/G-code library + previews — bulk media, must live on the NAS. `files` and `thumbs` **must** share one PVC: PrintStash's "local" storage provider verifies itself with a hardlink between `data_dir` and `thumb_dir`, which fails across two separate NFS mounts even on the same storageClass. |
 | `backups`  | `/data/backups`| `nfs-nas`    | Backup exports |
 | `db`       | `/data/db`     | `longhorn`   | SQLite database — latency-sensitive, small |
 | `staging`  | `/data/staging`| `longhorn`   | In-flight upload buffer — latency-sensitive, small |

@@ -77,10 +77,8 @@ spec:
             - name: VAULT_OIDC_DISPLAY_NAME
               value: "Pocket ID"
           volumeMounts:
-            - name: data
-              mountPath: /data/files
-            - name: thumbs
-              mountPath: /data/thumbs
+            - name: vault
+              mountPath: /data
             - name: db
               mountPath: /data/db
             - name: staging
@@ -107,12 +105,9 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
       volumes:
-        - name: data
+        - name: vault
           persistentVolumeClaim:
-            claimName: {{ include "printstash.fullname" . }}-data
-        - name: thumbs
-          persistentVolumeClaim:
-            claimName: {{ include "printstash.fullname" . }}-thumbs
+            claimName: {{ include "printstash.fullname" . }}-vault
         - name: db
           persistentVolumeClaim:
             claimName: {{ include "printstash.fullname" . }}-db
