@@ -25,6 +25,10 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
           env:
+            - name: PUID
+              value: "{{ .Values.puid }}"
+            - name: PGID
+              value: "{{ .Values.pgid }}"
             - name: VAULT_SETUP_MODE
               value: "trusted_network"
             - name: VAULT_RESTART_ENABLED
