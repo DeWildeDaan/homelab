@@ -1,0 +1,6 @@
+apiVersion: v2
+name: printstash
+description: Custom Helm chart for self-hosted PrintStash (3D print asset/G-code vault)
+type: application
+version: 0.1.0
+appVersion: "latest"

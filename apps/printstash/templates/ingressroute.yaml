@@ -1,0 +1,19 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "printstash.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "printstash.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ .Values.ingress.host }}`)
+      kind: Rule
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: kube-system
+      services:
+        - name: {{ include "printstash.fullname" . }}
+          port: {{ .Values.service.port }}

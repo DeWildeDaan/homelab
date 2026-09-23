@@ -1,0 +1,49 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/xiao-villamor/printstash
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  port: 3000
+
+ingress:
+  host: printstash.home.daandewilde.be
+  url: https://printstash.home.daandewilde.be
+
+persistence:
+  data:
+    storageClass: nfs-nas
+    size: 200Gi
+  thumbs:
+    storageClass: nfs-nas
+    size: 20Gi
+  backups:
+    storageClass: nfs-nas
+    size: 20Gi
+  db:
+    storageClass: longhorn
+    size: 2Gi
+  staging:
+    storageClass: longhorn
+    size: 10Gi
+
+oidc:
+  issuerUrl: https://auth.home.daandewilde.be
+  clientId: "97daa2e9-0364-4c2d-afe6-391cd483dfe4"
+  redirectUri: https://printstash.home.daandewilde.be/api/v1/auth/oidc/callback
+  adminGroups: "admin"
+
+secrets:
+  name: printstash-secrets
+  encryptedJwtSecret: "AgCASoYeoX98x89QUZZUKmfYVu4wfTcT94oOehId9yROuA/xAfenHnCVp7gFqFd5ijnUUUDfVDXYrR9glB0UPvwznP/p3Y2CMjd/nFc9uzfsvPaARxHoW16fFj7EK9hdjf3Q27arlTgbPeNhgewtLBoVqejsTTP0KIEKRgEBVp4FEGEk4D+lF7AT1YcuxU5/Yab7txOeUga+FrvYiDnsGg+lVsy0+1NikwhGX2iX0r0K0DsVQnptTl8zf6G3n6qpSYLO5DfKHHRZQPLtLAPCTvbJBu59/lyqRxw4HnBt0uNPV3sQYQc3YR8SpiKR2qfcI7oxjz8uFoPecdrHsmcTmU0fCSkaYxtyxScJ8chGxGUwk1WSCtIhFRPFQtZVHSgdFimT5IS8KF+woCSMANfLL9VlSEBBCfLNikbDNnzKpAPjlrlO+dPk2mIT3KQ4u6qHGJSMZcq5+94HY7eO4lXTR4VsmHRu6Y/gLPBUzqjKRUlgMJ3ImTYMhrWc+ajWgPjSZ9JCxPC11rY7jYtYMAGmD6ZQUdIdx0bmUQdHMghpwo2ZV8Su36kzBvBpE2L6Z/b7ONceUes0O+RXQSx4InSWkqiyRzix7oENg+gLs1dzwr4Ua5PmchwqdJPVQ1dAkQU8jI7mck+FN2EC17On6E6Sg9Jn43ppFCJnf0vBvIYE3TRT8Vb+btarZ4kt1caWaWvuIEko/F8BmLdcuRW9KDbzr+AtFXqBqLRnXxYKeFb7MLQ10D7HEfHm4A0wwzI0JhTIec6I31g3ZeJ0BHcG/zIySaTi"
+  encryptedOidcClientSecret: "AgBxmo7SkATgPIJ7rnK1Kp+rD4/LikXcMf6M8VMXRZUWFyQ1j4yaqIUKoksbPk7W4Z+DbVZIRlEOs+WGZgLGqsKesvqe2fJITXH+8cYDgaOFU1L5U/sNJMwphsvhWWMAv6ICKFwiT0e/g6eHAlFGAAXsCKnoQmOFOlHXw16TgVZcgdRddTimlX1j2Ajoo1+RCJRbwwJEllU4wGBFsJ/m4Va3YfRbvRHyPPSiardjwT6TOZRvGd/r34WXKDLDcXI3GRPB0+X/zqDEayPAKqfSWERHTuuItskI5FfaZrqbXP5HzrMEML3BlByaLXqQ93x/wKs5QtlZXa+44VWOwtoPYyu/cFV0bFlej5z3Gk3ygI8VGA23LJgk7GbSqLycW6WxtwWwFDad7OSfYqslS60LznaDXHpnc4DOBbALbXo3Rumz4YJ5TGJ6mPKeV2SzGmPktotPFuVH1QdUK+vOdzysOOueX95CKMduROIvsPab0XZiBfGkbQqT/ra5tGbwxt+CmZ80PCptbgPBJTzW4gg73fEGy7i9eUazMaQGh96RRgcf+7uggAHHUl3jzhlzo0B7VXScdB2kNwa6SF9NeQ6PXO3VRhymY3EiEmKiNc9X4uG9X/fCtm+uZW9x9J1w01X1GG+XR9ePgpoUHXlPzfwjnAbRhUmmOCUOTIOWNwlkg5GUDl9LtzMwqKFxLcsPNRVcXkoV4If3O6ajlYxzjIzWkMebsXIREiBlejp6/mujLOjWUw=="
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 2Gi

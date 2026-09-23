@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "printstash.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "printstash.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "printstash.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "printstash.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: printstash
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          env:
+            - name: VAULT_SETUP_MODE
+              value: "trusted_network"
+            - name: VAULT_RESTART_ENABLED
+              value: "true"
+            - name: VAULT_DATA_DIR
+              value: "/data/files"
+            - name: VAULT_THUMB_DIR
+              value: "/data/thumbs"
+            - name: VAULT_STAGING_DIR
+              value: "/data/staging"
+            - name: VAULT_BACKUP_DIR
+              value: "/data/backups"
+            - name: VAULT_DB_URL
+              value: "sqlite:////data/db/printstash.sqlite"
+            - name: VAULT_SESSION_COOKIE_SECURE
+              value: "true"
+            - name: VAULT_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: VAULT_JWT_SECRET
+            # --- OIDC / Pocket ID SSO ---
+            - name: VAULT_OIDC_ENABLED
+              value: "true"
+            - name: VAULT_OIDC_ISSUER_URL
+              value: "{{ .Values.oidc.issuerUrl }}"
+            - name: VAULT_OIDC_CLIENT_ID
+              value: "{{ .Values.oidc.clientId }}"
+            - name: VAULT_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: VAULT_OIDC_CLIENT_SECRET
+            - name: VAULT_OIDC_REDIRECT_URI
+              value: "{{ .Values.oidc.redirectUri }}"
+            - name: VAULT_OIDC_SCOPES
+              value: "openid profile email groups"
+            - name: VAULT_OIDC_USERNAME_CLAIM
+              value: "preferred_username"
+            - name: VAULT_OIDC_GROUPS_CLAIM
+              value: "groups"
+            - name: VAULT_OIDC_ADMIN_GROUPS
+              value: "{{ .Values.oidc.adminGroups }}"
+            - name: VAULT_OIDC_DISPLAY_NAME
+              value: "Pocket ID"
+          volumeMounts:
+            - name: data
+              mountPath: /data/files
+            - name: thumbs
+              mountPath: /data/thumbs
+            - name: db
+              mountPath: /data/db
+            - name: staging
+              mountPath: /data/staging
+            - name: backups
+              mountPath: /data/backups
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "printstash.fullname" . }}-data
+        - name: thumbs
+          persistentVolumeClaim:
+            claimName: {{ include "printstash.fullname" . }}-thumbs
+        - name: db
+          persistentVolumeClaim:
+            claimName: {{ include "printstash.fullname" . }}-db
+        - name: staging
+          persistentVolumeClaim:
+            claimName: {{ include "printstash.fullname" . }}-staging
+        - name: backups
+          persistentVolumeClaim:
+            claimName: {{ include "printstash.fullname" . }}-backups
