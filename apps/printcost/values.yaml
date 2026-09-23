@@ -1,0 +1,39 @@
+printcost:
+  replicaCount: 1
+
+  image:
+    repository: ghcr.io/dewildedaan/printcost
+    tag: "latest"
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  ingress:
+    enabled: false
+
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: "longhorn"
+
+  env:
+    DB_PATH: /data/printcost.db
+
+  oidc:
+    issuerUrl: "https://auth.home.daandewilde.be"
+    clientId: "b0071043-cd92-43a6-8992-154b98f36dcd"
+    redirectUrl: "https://printcost.home.daandewilde.be/auth/callback"
+    
+    existingSecret: "printcost-app-secret"
+    existingSecretClientSecretKey: OIDC_CLIENT_SECRET
+    existingSecretSessionSecretKey: SESSION_SECRET
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

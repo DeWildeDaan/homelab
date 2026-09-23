@@ -1,0 +1,11 @@
+apiVersion: v2
+name: printcost
+description: Umbrella chart for PrintCost - self-hosted 3D print cost calculator
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: printcost
+    version: ">=0.1.0"
+    repository: oci://ghcr.io/dewildedaan/printcost-chart
