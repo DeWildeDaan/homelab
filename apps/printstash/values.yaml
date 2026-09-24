@@ -16,12 +16,6 @@ ingress:
   url: https://printstash.home.daandewilde.be
 
 persistence:
-  vault:
-    storageClass: nfs-nas
-    size: 220Gi
-  backups:
-    storageClass: nfs-nas
-    size: 20Gi
   db:
     storageClass: longhorn
     size: 2Gi

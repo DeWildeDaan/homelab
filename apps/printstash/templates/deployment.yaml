@@ -35,14 +35,8 @@ spec:
               value: "{{ .Values.ingress.host }}"
             - name: VAULT_RESTART_ENABLED
               value: "true"
-            - name: VAULT_DATA_DIR
-              value: "/data/files"
-            - name: VAULT_THUMB_DIR
-              value: "/data/thumbs"
             - name: VAULT_STAGING_DIR
               value: "/data/staging"
-            - name: VAULT_BACKUP_DIR
-              value: "/data/backups"
             - name: VAULT_DB_URL
               value: "sqlite:////data/db/printstash.sqlite"
             - name: VAULT_SESSION_COOKIE_SECURE
@@ -77,14 +71,10 @@ spec:
             - name: VAULT_OIDC_DISPLAY_NAME
               value: "Pocket ID"
           volumeMounts:
-            - name: vault
-              mountPath: /data
             - name: db
               mountPath: /data/db
             - name: staging
               mountPath: /data/staging
-            - name: backups
-              mountPath: /data/backups
             - name: nginx-template
               mountPath: /app/nginx-server.template
               subPath: nginx-server.template
@@ -108,18 +98,12 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
       volumes:
-        - name: vault
-          persistentVolumeClaim:
-            claimName: {{ include "printstash.fullname" . }}-vault
         - name: db
           persistentVolumeClaim:
             claimName: {{ include "printstash.fullname" . }}-db
         - name: staging
           persistentVolumeClaim:
             claimName: {{ include "printstash.fullname" . }}-staging
-        - name: backups
-          persistentVolumeClaim:
-            claimName: {{ include "printstash.fullname" . }}-backups
         - name: nginx-template
           configMap:
             name: {{ include "printstash.fullname" . }}-nginx-template
