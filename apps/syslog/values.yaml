@@ -1,0 +1,104 @@
+app-template:
+  controllers:
+    syslog:
+      containers:
+        app:
+          image:
+            repository: balabit/syslog-ng
+            tag: "4.12.0"
+          args: ["-F", "--no-caps"]
+          env:
+            TZ: Europe/Brussels
+          probes:
+            liveness: &probe
+              enabled: false
+            readiness: *probe
+            startup: *probe
+        # ponytail: sidecar loop, swap for a CronJob if you want it visible in k8s history
+        prune:
+          image:
+            repository: busybox
+            tag: "1.37"
+          command:
+            - sh
+            - -c
+            - while true; do find /logs -name '*.log' -mtime +183 -delete; sleep 86400; done
+        browse:
+          image:
+            repository: nginx
+            tag: 1.29-alpine
+          probes:
+            liveness: &httpprobe
+              enabled: true
+              custom: true
+              spec:
+                httpGet:
+                  path: /
+                  port: 8080
+            readiness: *httpprobe
+
+  service:
+    # UDR7 -> Settings -> Control Plane -> Integrations -> SIEM Server -> 192.168.4.37:514
+    syslog:
+      controller: syslog
+      type: LoadBalancer
+      loadBalancerIP: 192.168.4.37
+      ports:
+        syslog-udp:
+          port: 514
+          protocol: UDP
+    # Cluster-internal handle for the Traefik IngressRoute.
+    web:
+      controller: syslog
+      ports:
+        http:
+          port: 8080
+
+  configMaps:
+    config:
+      data:
+        syslog-ng.conf: |
+          @version: 4.12
+          source s_net { network(transport("udp") port(514)); };
+          # One file per day; files older than ~6 months are pruned by the `prune` sidecar.
+          destination d_file {
+            file("/var/log/unifi/${YEAR}-${MONTH}-${DAY}.log" create-dirs(yes));
+          };
+          log { source(s_net); destination(d_file); };
+        nginx.conf: |
+          server {
+            listen 8080;
+            location / {
+              root /logs;
+              autoindex on;
+              types { }
+              default_type text/plain;
+            }
+          }
+
+  persistence:
+    logs:
+      type: persistentVolumeClaim
+      storageClass: nfs-nas
+      accessMode: ReadWriteMany
+      size: 10Gi
+      advancedMounts:
+        syslog:
+          app:
+            - path: /var/log/unifi
+          prune:
+            - path: /logs
+          browse:
+            - path: /logs
+              readOnly: true
+    config:
+      type: configMap
+      identifier: config
+      advancedMounts:
+        syslog:
+          app:
+            - path: /etc/syslog-ng/syslog-ng.conf
+              subPath: syslog-ng.conf
+          browse:
+            - path: /etc/nginx/conf.d/default.conf
+              subPath: nginx.conf

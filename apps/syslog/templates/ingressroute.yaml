@@ -1,0 +1,20 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: syslog
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`syslog.home.daandewilde.be`)
+      kind: Rule
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: kube-system
+        - name: pocket-id-admins
+          namespace: kube-system
+      services:
+        - name: syslog-web
+          port: 8080
+  tls: {}
