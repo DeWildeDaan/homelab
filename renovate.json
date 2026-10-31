@@ -10,10 +10,14 @@
   "prConcurrentLimit": 10,
   "labels": ["dependencies"],
   "helm-values": {
-    "fileMatch": ["apps/.+/values\\.yaml$"]
+    "managerFilePatterns": [
+      "/apps/.+/values\\.yaml$/"
+    ]
   },
   "helmv3": {
-    "fileMatch": ["apps/.+/Chart\\.yaml$"]
+    "managerFilePatterns": [
+      "/apps/.+/Chart\\.yaml$/"
+    ]
   },
   "packageRules": [
     {
