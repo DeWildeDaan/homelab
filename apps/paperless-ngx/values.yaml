@@ -1,9 +1,9 @@
 # Knobs for the in-repo Gotenberg + Tika sidecars (templates/{gotenberg,tika}.yaml).
 # Paperless wires to them via PAPERLESS_TIKA_* env below.
 gotenberg:
-  image: gotenberg/gotenberg:8.37.0
+  image: gotenberg/gotenberg:8.39.0
 tika:
-  image: apache/tika:3.3.1.0-full
+  image: apache/tika:3.3.3.0-full
 
 # Redis is an OT redis-operator standalone `Redis` CR (paperless-redis) defined in
 # apps/redis-operator/templates/paperless-redis.yaml — all Redis CRs live in that
@@ -28,7 +28,7 @@ ingress:
 paperless-ngx:
   image:
     repository: ghcr.io/paperless-ngx/paperless-ngx
-    tag: "3.2.1"
+    tag: "3.4.1"
 
   # Flip the default ClusterIP service to LoadBalancer so MetalLB pins it to a
   # static LAN IP (same pattern as adguard/immich). Traefik still fronts it on
