@@ -35,10 +35,10 @@
       "enabled": false
     },
     {
-      "description": "Auto-merge patch bumps for stable images/charts after CI passes",
-      "matchUpdateTypes": ["patch", "digest"],
+      "description": "Auto-merge minor/patch bumps for stable images/charts after CI passes",
+      "matchUpdateTypes": ["minor", "patch", "digest"],
       "matchCurrentVersion": "!/-(nightly|preview|beta|rc|alpha)/",
-      "automerge": false
+      "automerge": true
     }
   ],
   "vulnerabilityAlerts": {
