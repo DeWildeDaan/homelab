@@ -22,7 +22,7 @@ ollama:
 openWebui:
   image:
     repository: ghcr.io/open-webui/open-webui
-    tag: "v0.13.0"
+    tag: "v0.13.2"
     pullPolicy: IfNotPresent
 
   service:
