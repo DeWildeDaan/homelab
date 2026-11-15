@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mcp-readonly
+  namespace: {{ .Release.Namespace }}
+---
+# Long-lived token for the local MCP server: kubectl -n mcp-access get secret mcp-readonly-token -o jsonpath='{.data.token}' | base64 -d
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mcp-readonly-token
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    kubernetes.io/service-account.name: mcp-readonly
+type: kubernetes.io/service-account-token
+---
+# Built-in `view` excludes Secrets and most CRDs; this adds the CRDs used for debugging.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mcp-readonly-crds
+rules:
+  - apiGroups: [argoproj.io, postgresql.cnpg.io, longhorn.io, aquasecurity.github.io, kyverno.io, wgpolicyk8s.io, cert-manager.io, metallb.io, traefik.io, metrics.k8s.io, networking.k8s.io]
+    resources: ["*"]
+    verbs: [get, list, watch]
+  - apiGroups: [""]
+    resources: [nodes, persistentvolumes]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mcp-readonly
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+  - kind: ServiceAccount
+    name: mcp-readonly
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mcp-readonly-crds
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mcp-readonly-crds
+subjects:
+  - kind: ServiceAccount
+    name: mcp-readonly
+    namespace: {{ .Release.Namespace }}
