@@ -1,4 +1,8 @@
 kyverno:
+  upgrade:
+    legacyPolicyCheck:
+      enabled: false
+
   admissionController:
     replicas: 1
     resources:
