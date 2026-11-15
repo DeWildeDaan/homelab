@@ -1,33 +1,46 @@
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
 metadata:
   name: ballast-opt-in
-  annotations:
-    pod-policies.kyverno.io/autogen-controllers: none
 spec:
-  background: false
-  rules:
-    - name: inject-ballast-mode
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-      exclude:
-        any:
-          - resources:
-              namespaces:
-                - ballast
-                - kube-system
-                - kube-public
-                - kube-node-lease
-                - metallb
-                - nfs-storage
-                - default
-      mutate:
-        patchStrategicMerge:
-          metadata:
-            labels:
-              ballast.tightlinesoftware.com/mode: apply
-              app.kubernetes.io/name: >-
-                {{`{{ request.object.metadata.labels."app.kubernetes.io/name" || request.object.metadata.labels.app || request.object.metadata.labels."k8s-app" || request.object.metadata.labels.name || request.object.metadata.labels."longhorn.io/component" || 'unknown' }}`}}
+  matchConstraints:
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values:
+            - ballast
+            - kube-system
+            - kube-public
+            - kube-node-lease
+            - metallb
+            - nfs-storage
+            - default
+    resourceRules:
+      - apiGroups: ['']
+        apiVersions: ['v1']
+        operations: ['CREATE']
+        resources: ['pods']
+  variables:
+    - name: l
+      expression: object.metadata.?labels.orValue({})
+    - name: appName
+      expression: >-
+        variables.l[?"app.kubernetes.io/name"]
+        .or(variables.l[?"app"])
+        .or(variables.l[?"k8s-app"])
+        .or(variables.l[?"name"])
+        .or(variables.l[?"longhorn.io/component"])
+        .orValue("unknown")
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >-
+          Object{
+            metadata: Object.metadata{
+              labels: {
+                "ballast.tightlinesoftware.com/mode": "apply",
+                "app.kubernetes.io/name": string(variables.appName)
+              }
+            }
+          }
