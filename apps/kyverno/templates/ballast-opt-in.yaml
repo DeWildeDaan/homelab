@@ -28,6 +28,6 @@ spec:
         patchStrategicMerge:
           metadata:
             labels:
-              ballast.tightlinesoftware.com/mode: measure
+              ballast.tightlinesoftware.com/mode: apply
               app.kubernetes.io/name: >-
                 {{`{{ request.object.metadata.labels."app.kubernetes.io/name" || request.object.metadata.labels.app || request.object.metadata.labels."k8s-app" || request.object.metadata.labels.name || request.object.metadata.labels."longhorn.io/component" || 'unknown' }}`}}
