@@ -12,6 +12,7 @@ argo-cd:
       server.insecure: true
     cm:
       admin.enabled: false
+      accounts.mcp: apiKey
       statusbadge.enabled: true
       url: https://argocd.home.daandewilde.be
 
@@ -30,6 +31,9 @@ argo-cd:
       policy.default: role:readonly
       policy.csv: |
         g, admin, role:admin
+        p, role:mcp, applications, get, */*, allow
+        p, role:mcp, applications, sync, */*, allow
+        g, mcp, role:mcp
 
   controller:
     replicas: 2
