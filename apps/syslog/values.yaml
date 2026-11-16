@@ -5,7 +5,7 @@ app-template:
         app:
           image:
             repository: balabit/syslog-ng
-            tag: "4.12.0"
+            tag: "4.13.0"
           args: ["-F", "--no-caps"]
           env:
             TZ: Europe/Brussels
