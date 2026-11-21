@@ -1,9 +1,9 @@
 # Knobs for the in-repo Gotenberg + Tika sidecars (templates/{gotenberg,tika}.yaml).
 # Paperless wires to them via PAPERLESS_TIKA_* env below.
 gotenberg:
-  image: gotenberg/gotenberg:9.9.0
+  image: gotenberg/gotenberg:9.9.1
 tika:
-  image: apache/tika:3.3.3.0-full
+  image: apache/tika:3.3.3.1-full
 
 # Redis is an OT redis-operator standalone `Redis` CR (paperless-redis) defined in
 # apps/redis-operator/templates/paperless-redis.yaml — all Redis CRs live in that
